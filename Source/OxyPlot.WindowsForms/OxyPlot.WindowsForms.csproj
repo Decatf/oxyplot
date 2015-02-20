@@ -53,6 +53,7 @@
     <Compile Include="PlotView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="TrackerView.cs" />
     <Compile Include="Utilities\ConverterExtensions.cs" />
     <Compile Include="GraphicsRenderContext.cs" />
     <Compile Include="NamespaceDoc.cs" />

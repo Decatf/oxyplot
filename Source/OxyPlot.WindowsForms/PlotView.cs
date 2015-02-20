@@ -60,10 +60,10 @@ namespace OxyPlot.WindowsForms
         private BufferedGraphics chartBuffer;
 
         /// <summary>
-        /// The tracker label.
+        /// The tracker control.
         /// </summary>
         [NonSerialized]
-        private Label trackerLabel;
+        private TrackerView trackerView;
 
         /// <summary>
         /// The current model (holding a reference to this plot view).
@@ -236,9 +236,11 @@ namespace OxyPlot.WindowsForms
         /// </summary>
         public void HideTracker()
         {
-            if (this.trackerLabel != null)
+            if (this.trackerView != null)
             {
-                this.trackerLabel.Visible = false;
+                this.trackerView.Visible = false;
+                this.trackerView.TrackerText = null;
+                this.trackerView.TrackerLocation = ScreenPoint.Undefined;
             }
         }
 
@@ -326,15 +328,18 @@ namespace OxyPlot.WindowsForms
         /// <param name="data">The data.</param>
         public void ShowTracker(TrackerHitResult data)
         {
-            if (this.trackerLabel == null)
+            if (this.trackerView == null)
             {
-                this.trackerLabel = new Label { Parent = this, BackColor = Color.LightSkyBlue, AutoSize = true };
+                this.trackerView = new TrackerView();
+                this.trackerView.Size = this.Size;
+                this.Controls.Add(trackerView);
             }
 
-            this.trackerLabel.Text = data.ToString();
-            this.trackerLabel.Top = (int)data.Position.Y - this.Top;
-            this.trackerLabel.Left = (int)data.Position.X - this.Left;
-            this.trackerLabel.Visible = true;
+            this.trackerView.TrackerText = data.ToString();
+            this.trackerView.TrackerBounds = this.model.PlotArea;
+            this.trackerView.TrackerLocation = data.Position;
+            this.trackerView.Visible = true;
+            this.trackerView.Invalidate();
         }
 
         /// <summary>
@@ -537,6 +542,13 @@ namespace OxyPlot.WindowsForms
         {
             if (disposing)
             {
+                if (this.trackerView != null)
+                {
+                    this.Controls.Remove(this.trackerView);
+                    this.trackerView.Dispose();
+                    this.trackerView = null;
+                }
+
                 if (this.chartBuffer != null)
                 {
                     this.chartBuffer.Dispose();
@@ -566,6 +578,12 @@ namespace OxyPlot.WindowsForms
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+
+            if (this.trackerView != null)
+            {
+                this.trackerView.Size = this.Size;
+            }
+
             this.InvalidatePlot(false);
         }
 
