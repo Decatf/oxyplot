@@ -60,10 +60,10 @@ namespace OxyPlot.WindowsForms
         private BufferedGraphics chartBuffer;
 
         /// <summary>
-        /// The tracker control
+        /// The tracker label.
         /// </summary>
         [NonSerialized]
-        private Control trackerControl;
+        private Label trackerLabel;
 
         /// <summary>
         /// The current model (holding a reference to this plot view).
@@ -236,17 +236,9 @@ namespace OxyPlot.WindowsForms
         /// </summary>
         public void HideTracker()
         {
-            if (this.trackerControl != null)
+            if (this.trackerLabel != null)
             {
-                if (this.Parent != null)
-                {
-                    this.Parent.Controls.Remove(this.trackerControl);
-                }
-
-                this.trackerControl.Parent = null;
-                this.trackerControl.Dispose();
-                this.trackerControl = null;
-                this.Invalidate(true);
+                this.trackerLabel.Visible = false;
             }
         }
 
@@ -269,12 +261,6 @@ namespace OxyPlot.WindowsForms
             {
                 this.isModelInvalidated = true;
                 this.updateDataFlag = this.updateDataFlag || updateData;
-            }
-
-            if (this.trackerControl != null)
-            {
-                TrackerControl tc = (TrackerControl)this.trackerControl;
-                tc.InvalidateControl(true);
             }
 
             this.Invalidate();
@@ -340,32 +326,15 @@ namespace OxyPlot.WindowsForms
         /// <param name="data">The data.</param>
         public void ShowTracker(TrackerHitResult data)
         {
-            if (this.trackerControl == null)
+            if (this.trackerLabel == null)
             {
-                this.trackerControl = new TrackerControl();
-
-                if (this.Parent != null)
-                {
-                    this.Parent.Controls.Add(trackerControl);
-                    this.trackerControl.BringToFront();
-                    this.Parent.Invalidate();
-
-                    TrackerControl tc = (TrackerControl)this.trackerControl;
-                    tc.RefreshControl(true);
-                }
+                this.trackerLabel = new Label { Parent = this, BackColor = Color.LightSkyBlue, AutoSize = true };
             }
 
-            if (this.trackerControl != null)
-            {
-                this.trackerControl.Top = 0;
-                this.trackerControl.Left = 0;
-                this.trackerControl.Width = this.Width;
-                this.trackerControl.Height = this.Height;
-
-                TrackerControl tc = (TrackerControl)this.trackerControl;
-                tc.TrackerHitResult = data;
-                tc.InvalidateControl(false);
-            }
+            this.trackerLabel.Text = data.ToString();
+            this.trackerLabel.Top = (int)data.Position.Y - this.Top;
+            this.trackerLabel.Left = (int)data.Position.X - this.Left;
+            this.trackerLabel.Visible = true;
         }
 
         /// <summary>
