@@ -66,6 +66,11 @@ namespace OxyPlot.WindowsForms
         private TrackerView trackerView;
 
         /// <summary>
+        /// Overlay controls
+        /// </summary>
+        private readonly PlotOverlayGroupControl overlays;
+
+        /// <summary>
         /// The current model (holding a reference to this plot view).
         /// </summary>
         [NonSerialized]
@@ -110,6 +115,13 @@ namespace OxyPlot.WindowsForms
             this.ZoomRectangleCursor = Cursors.SizeNWSE;
             this.ZoomHorizontalCursor = Cursors.SizeWE;
             this.ZoomVerticalCursor = Cursors.SizeNS;
+
+            this.overlays = new PlotOverlayGroupControl
+            {
+                Size = this.Size,
+            };
+            this.Controls.Add(this.overlays);
+            this.overlays.BringToFront();
         }
 
         /// <summary>
@@ -199,6 +211,17 @@ namespace OxyPlot.WindowsForms
         }
 
         /// <summary>
+        /// Gets the plot overlay controls.
+        /// </summary>
+        public PlotOverlayGroupControl OverlayControls
+        {
+            get
+            {
+                return this.overlays;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the plot controller.
         /// </summary>
         /// <value>The controller.</value>
@@ -239,8 +262,9 @@ namespace OxyPlot.WindowsForms
             if (this.trackerView != null)
             {
                 this.trackerView.Visible = false;
-                this.trackerView.TrackerText = null;
-                this.trackerView.TrackerLocation = ScreenPoint.Undefined;
+                this.trackerView.TrackerModel.TrackerText = null;
+                this.trackerView.TrackerModel.TrackerLocation = ScreenPoint.Undefined;
+                this.overlays.Invalidate(true);
             }
         }
 
@@ -332,14 +356,14 @@ namespace OxyPlot.WindowsForms
             {
                 this.trackerView = new TrackerView();
                 this.trackerView.Size = this.Size;
-                this.Controls.Add(trackerView);
+                this.overlays.Controls.Add(this.trackerView);
             }
 
-            this.trackerView.TrackerText = data.ToString();
-            this.trackerView.TrackerBounds = this.model.PlotArea;
-            this.trackerView.TrackerLocation = data.Position;
+            this.trackerView.TrackerModel.TrackerText = data.ToString();
+            this.trackerView.TrackerModel.TrackerBounds = this.model.PlotArea;
+            this.trackerView.TrackerModel.TrackerLocation = data.Position;
             this.trackerView.Visible = true;
-            this.trackerView.Invalidate();
+            this.overlays.Invalidate(true);
         }
 
         /// <summary>
@@ -582,6 +606,11 @@ namespace OxyPlot.WindowsForms
             if (this.trackerView != null)
             {
                 this.trackerView.Size = this.Size;
+            }
+
+            if (this.overlays != null)
+            {
+                this.overlays.Size = this.Size;
             }
 
             this.InvalidatePlot(false);
