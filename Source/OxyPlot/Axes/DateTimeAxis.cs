@@ -187,7 +187,7 @@ namespace OxyPlot.Axes
         /// Updates the intervals.
         /// </summary>
         /// <param name="plotArea">The plot area.</param>
-        internal override void UpdateIntervals(OxyRect plotArea)
+        protected internal override void UpdateIntervals(OxyRect plotArea)
         {
             base.UpdateIntervals(plotArea);
             switch (this.actualIntervalType)

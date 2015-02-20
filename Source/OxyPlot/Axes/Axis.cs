@@ -1253,43 +1253,6 @@ namespace OxyPlot.Axes
         }
 
         /// <summary>
-        /// Updates the actual minor and major step intervals.
-        /// </summary>
-        /// <param name="plotArea">The plot area rectangle.</param>
-        internal virtual void UpdateIntervals(OxyRect plotArea)
-        {
-            double labelSize = this.IntervalLength;
-            double length = this.IsHorizontal() ? plotArea.Width : plotArea.Height;
-            length *= Math.Abs(this.EndPosition - this.StartPosition);
-
-            this.ActualMajorStep = !double.IsNaN(this.MajorStep)
-                                       ? this.MajorStep
-                                       : this.CalculateActualInterval(length, labelSize);
-
-            this.ActualMinorStep = !double.IsNaN(this.MinorStep)
-                                       ? this.MinorStep
-                                       : this.CalculateMinorInterval(this.ActualMajorStep);
-
-            if (double.IsNaN(this.ActualMinorStep))
-            {
-                this.ActualMinorStep = 2;
-            }
-
-            if (double.IsNaN(this.ActualMajorStep))
-            {
-                this.ActualMajorStep = 10;
-            }
-
-            this.ActualStringFormat = this.StringFormat;
-
-            // if (ActualStringFormat==null)
-            // {
-            // if (ActualMaximum > 1e6 || ActualMinimum < 1e-6)
-            // ActualStringFormat = "#.#e-0";
-            // }
-        }
-
-        /// <summary>
         /// Updates the scale and offset properties of the transform from the specified boundary rectangle.
         /// </summary>
         /// <param name="bounds">The bounds.</param>
@@ -1342,6 +1305,43 @@ namespace OxyPlot.Axes
             }
 
             this.SetTransform(newScale, newOffset);
+        }
+
+        /// <summary>
+        /// Updates the actual minor and major step intervals.
+        /// </summary>
+        /// <param name="plotArea">The plot area rectangle.</param>
+        protected internal virtual void UpdateIntervals(OxyRect plotArea)
+        {
+            double labelSize = this.IntervalLength;
+            double length = this.IsHorizontal() ? plotArea.Width : plotArea.Height;
+            length *= Math.Abs(this.EndPosition - this.StartPosition);
+
+            this.ActualMajorStep = !double.IsNaN(this.MajorStep)
+                                       ? this.MajorStep
+                                       : this.CalculateActualInterval(length, labelSize);
+
+            this.ActualMinorStep = !double.IsNaN(this.MinorStep)
+                                       ? this.MinorStep
+                                       : this.CalculateMinorInterval(this.ActualMajorStep);
+
+            if (double.IsNaN(this.ActualMinorStep))
+            {
+                this.ActualMinorStep = 2;
+            }
+
+            if (double.IsNaN(this.ActualMajorStep))
+            {
+                this.ActualMajorStep = 10;
+            }
+
+            this.ActualStringFormat = this.StringFormat;
+
+            // if (ActualStringFormat==null)
+            // {
+            // if (ActualMaximum > 1e6 || ActualMinimum < 1e-6)
+            // ActualStringFormat = "#.#e-0";
+            // }
         }
 
         /// <summary>
