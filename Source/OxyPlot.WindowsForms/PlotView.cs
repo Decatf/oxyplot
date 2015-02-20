@@ -48,6 +48,18 @@ namespace OxyPlot.WindowsForms
         private readonly GraphicsRenderContext renderContext;
 
         /// <summary>
+        /// Charts graphics buffer dimensions.
+        /// </summary>
+        [NonSerialized]
+        private Rectangle bufferRectangle;
+
+        /// <summary>
+        /// Chart graphics buffer.
+        /// </summary>
+        [NonSerialized]
+        private BufferedGraphics chartBuffer;
+
+        /// <summary>
         /// The tracker control
         /// </summary>
         [NonSerialized]
@@ -460,6 +472,8 @@ namespace OxyPlot.WindowsForms
             base.OnPaint(e);
             try
             {
+                bool isRenderingModel = false;
+
                 lock (this.invalidateLock)
                 {
                     if (this.isModelInvalidated)
@@ -468,6 +482,7 @@ namespace OxyPlot.WindowsForms
                         {
                             ((IPlotModel)this.model).Update(this.updateDataFlag);
                             this.updateDataFlag = false;
+                            isRenderingModel = true;
                         }
 
                         this.isModelInvalidated = false;
@@ -476,20 +491,44 @@ namespace OxyPlot.WindowsForms
 
                 lock (this.renderingLock)
                 {
-                    this.renderContext.SetGraphicsTarget(e.Graphics);
 
-                    if (this.model != null)
+                    if (this.chartBuffer != null && this.bufferRectangle != this.DisplayRectangle)
                     {
+                        this.chartBuffer.Dispose();
+                        this.chartBuffer = null;
+                    }
+
+                    // create new graphics buffer
+                    if (this.chartBuffer == null)
+                    {
+                        BufferedGraphicsContext currentContext = BufferedGraphicsManager.Current;
+                        BufferedGraphics chartBuffer = currentContext.Allocate(e.Graphics, this.DisplayRectangle);
+                        this.chartBuffer = chartBuffer;
+                        this.bufferRectangle = new Rectangle(this.DisplayRectangle.Location,
+                            this.DisplayRectangle.Size);
+                        chartBuffer.Graphics.Clear(this.BackColor);
+                    }
+
+                    Graphics g = this.chartBuffer.Graphics;
+                    this.renderContext.SetGraphicsTarget(g);
+
+                    // render the plot model
+                    if (this.model != null && isRenderingModel == true)
+                    {
+                        g.Clear(this.BackColor);
+
                         if (!this.model.Background.IsUndefined())
                         {
                             using (var brush = new SolidBrush(this.model.Background.ToColor()))
                             {
-                                e.Graphics.FillRectangle(brush, e.ClipRectangle);
+                                g.FillRectangle(brush, e.ClipRectangle);
                             }
                         }
 
                         ((IPlotModel)this.model).Render(this.renderContext, this.Width, this.Height);
                     }
+
+                    this.chartBuffer.Render(e.Graphics);
 
                     if (this.zoomRectangle != Rectangle.Empty)
                     {
@@ -515,6 +554,28 @@ namespace OxyPlot.WindowsForms
                         "OxyPlot paint exception: " + paintException.Message, font, Brushes.Red, this.Width * 0.5f, this.Height * 0.5f, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                 }
             }
+        }
+
+        /// <summary>
+        /// Releases the unmanaged resources used by the System.Windows.Forms.Control
+        /// and its child controls and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">
+        /// true to release both managed and unmanaged resources; false to release only
+        /// unmanaged resources.
+        /// </param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (this.chartBuffer != null)
+                {
+                    this.chartBuffer.Dispose();
+                    this.chartBuffer = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
 
         /// <summary>
