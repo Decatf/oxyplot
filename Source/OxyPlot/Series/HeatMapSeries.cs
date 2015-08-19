@@ -38,7 +38,7 @@ namespace OxyPlot.Series
         /// The default tracker format string
         /// </summary>
         public new const string DefaultTrackerFormatString = "{0}\n{1}: {2}\n{3}: {4}\n{5}: {6}";
-        
+
         /// <summary>
         /// The default color-axis title
         /// </summary>
@@ -175,13 +175,17 @@ namespace OxyPlot.Series
         /// Renders the series on the specified render context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             if (this.Data == null)
             {
                 this.image = null;
                 return;
+            }
+
+            if (this.ColorAxis == null)
+            {
+                throw new InvalidOperationException("Color axis not specified.");
             }
 
             double left = this.X0;
@@ -273,7 +277,8 @@ namespace OxyPlot.Series
                 Position = point,
                 Item = null,
                 Index = -1,
-                Text = this.Format(
+                Text = StringHelper.Format(
+                this.ActualCulture, 
                 this.TrackerFormatString,
                 null,
                 this.Title,

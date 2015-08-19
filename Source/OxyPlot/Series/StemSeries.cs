@@ -87,7 +87,8 @@ namespace OxyPlot.Series
                         Item = this.GetItem(i),
                         Index = i,
                         Text =
-                            this.Format(
+                            StringHelper.Format(
+                                this.ActualCulture, 
                                 this.TrackerFormatString,
                                 item,
                                 this.Title,
@@ -107,8 +108,7 @@ namespace OxyPlot.Series
         /// Renders the LineSeries on the specified rendering context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The owner plot model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             if (this.ActualPoints.Count == 0)
             {

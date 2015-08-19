@@ -9,6 +9,7 @@
 
 namespace OxyPlot.Xamarin.Mac
 {
+    using System;
     using Foundation;
     using AppKit;
 
@@ -89,7 +90,18 @@ namespace OxyPlot.Xamarin.Mac
             {
                 if (this.model != value)
                 {
-                    this.model = value;
+                    if (this.model != null)
+                    {
+                        ((IPlotModel)this.model).AttachPlotView(null);
+                        this.model = null;
+                    }
+
+                    if (value != null)
+                    {
+                        ((IPlotModel)value).AttachPlotView(this);
+                        this.model = value;
+                    }
+					
                     this.InvalidatePlot();
                 }
             }

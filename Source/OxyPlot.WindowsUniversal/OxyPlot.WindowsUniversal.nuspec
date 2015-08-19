@@ -2,10 +2,10 @@
 <package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <id>OxyPlot.WindowsUniversal</id>
-    <title>OxyPlot for Windows Universal apps</title>
+    <title>Obsolete package</title>
     <version>0.0.0</version>
     <authors>Oystein Bjorke</authors>
-    <description>OxyPlot is a plotting library for .NET. This package targets Windows 8.1 and Windows Phone 8.1 apps.</description>
+    <description>Please use OxyPlot.Windows, this package is obsolete.</description>
     <releaseNotes></releaseNotes>
     <licenseUrl>https://raw.githubusercontent.com/oxyplot/oxyplot/master/LICENSE</licenseUrl>
     <projectUrl>http://oxyplot.org/</projectUrl>
@@ -14,13 +14,14 @@
     <language>en-US</language>
     <tags>winrt win8 metro plotting plot charting chart</tags>
     <dependencies>
-      <dependency id="OxyPlot.Core" version="[0.0.0]"/>
+      <dependency id="OxyPlot.Windows" version="[0.0.0]"/>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\Output\WindowsUniversal\OxyPlot.WindowsUniversal.???" target="lib\portable-windows8+wpa81\OxyPlot.WindowsUniversal\" />
-    <file src="..\..\Output\WindowsUniversal\OxyPlot.WindowsUniversal.xr.xml" target="lib\portable-windows8+wpa81\OxyPlot.WindowsUniversal\OxyPlot.WindowsUniversal\" />
-    <file src="..\..\Output\WindowsUniversal\Themes\*.*" target="lib\portable-windows8+wpa81\OxyPlot.WindowsUniversal\OxyPlot.WindowsUniversal\Themes\" />
+    <file src="..\..\LICENSE" />
+    <file src="..\..\AUTHORS" />
+    <file src="..\..\CONTRIBUTORS" />
     <file src="..\..\README.md" />
+    <file src="..\..\CHANGELOG.md" />
   </files>
 </package>

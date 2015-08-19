@@ -3,19 +3,23 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- Created a new OxyPlot.Mobile NuGet to combine the mobile platforms into a single NuGet. (#362)
+- Created a new OxyPlot.Mobile NuGet package to combine the mobile platforms into a single package. (#362)
 - Support for XWT (#295)
 - TwoColorAreaSeries (#299)
 - Delta values in AxisChangedEventArgs (#276)
 - Enable Git source server (added GitLink build step) (#267,#266)
 - iOS PlotView ZoomThreshold/AllowPinchPastZero for use with KeepAspectRatioWhenPinching=false (#359)
-- Added OHLCVItem, CandleStickAndVolumeSeries, VolumeSeries & examples (#377)
+- CandleStickAndVolumeSeries and VolumeSeries (#377)
+- Axis.DesiredSize property (#383)
+- Added WPF Wrapper for BoxPlot (#434)
+- Added capability to display mean value to BoxPlot (#440)
+- Added LinearBarSeries for WPF (#506)
+- Added TitleToolTip to PlotModel (#508)
+- Expose PlotElement's TextColor property on WPF.Axes.Axis (#452)
 
 ### Changed
-- Changed the OxyPlot.Xamarin.Forms to require the OxyPlot.Mobile dependency instead of each separate NuGet. (#362)
-- Deleted PlotModel.ToSvg. Use the SvgExporter instead. (#347)
-- Deleted constructors with parameters. Use default constructors instead. (#347)
-- Deleted Axis.ShowMinorTicks. Use MinorTickSize = 0 instead. (#347)
+- Renamed OxyPlot.WindowsUniversal to OxyPlot.Windows (#242)
+- Changed OxyPlot.Xamarin.Forms to require OxyPlot.Mobile dependency instead of each separate NuGet. (#362)
 - Renamed OxyPlot.XamarinIOS to OxyPlot.MonoTouch (#327)
 - Renamed OxyPlot.XamarinAndroid to OxyPlot.Xamarin.Android (#327)
 - Renamed OxyPlot.XamarinForms to OxyPlot.Xamarin.Forms (#327)
@@ -23,15 +27,36 @@ All notable changes to this project will be documented in this file.
 - Renamed OxyPlot.XamarinFormsIOS to OxyPlot.Xamarin.Forms.Platform.iOS.Classic (#327)
 - Renamed OxyPlot.XamarinFormsAndroid to OxyPlot.Xamarin.Forms.Platform.Android (#327)
 - Renamed OxyPlot.XamarinFormsWinPhone to OxyPlot.Xamarin.Forms.Platform.WP8 (#327)
-- Xamarin Forms references updated to 1.3.1 (#293)
 - Changed OxyPlot.Xamarin.Android target to Android level 10 (#223)
 - Separated WPF Plot and PlotView (#252,#239)
-- current CandleStickSeries renamed to OldCandleStickSeries, replaced by a faster implementation (#369)
+- Current CandleStickSeries renamed to OldCandleStickSeries, replaced by a faster implementation (#369)
+- Fixed axis min/max calc and axis assignment for CandleStick + VolumeSeries (#389)
+- Invalidate plot when ItemsSource contents change (INotifyCollectionChanged) on WPF only (#406)
+- Xamarin.Forms references updated to 1.4.2 (#293,#439)
+- Change OxyPlot.Xamarin.Forms.Platform.Android target to Android level 15 (#439)
+- Changed OxyPlot.Xamarin.Forms to portable Profile259 (#439)
+- PlotController should not intercept input per default (#446)
+- Changed DefaultTrackerFormatString for BoxPlotSeries (to include Mean) (#440)
+- Changed Constructor of BoxPlotItem (to include Mean) (#440)
+- Changed Axis, Annotation and Series Render() method (removed model parameter)
+- Changed PCL project to profile 259, SL5 is separate now (#115)
+- Extracted CreateReport() and CreateTextReport() from PlotModel (#517)
+- Renamed GetLastUpdateException to GetLastPlotException and added the ability to see render exceptions(#543)
 
 ### Removed
 - OxyPlot.Metro project (superseded by OxyPlot.WindowsUniversal) (#241)
+- PlotModel.ToSvg method. Use the SvgExporter instead. (#347)
+- Constructors with parameters. Use default constructors instead. (#347)
+- Axis.ShowMinorTicks property. Use MinorTickSize = 0 instead. (#347)
+- ManipulatorBase.GetCursorType method (#447)
+- Model.GetElements() method
+- Remove SL4 support (#115)
+- Remove NET35 support (#115)
+- PlotElement.Format method. Use StringHelper.Format instead.
 
 ### Fixed
+- Tracker position is wrong when PlotView is offset from origin (#455)
+- CategoryAxis should use StringFormat (#415)
 - Fixed the dependency of OxyPlot.Xamarin.Forms NuGet (#370)
 - Add default ctor for Xamarin.Forms iOS renderer (#348)
 - Windows Phone cursor exception (#345)
@@ -54,6 +79,15 @@ All notable changes to this project will be documented in this file.
 - Support WinPhone 8.1 in core NuGet package (#161)
 - Draw legend line with custom pattern (#356)
 - iOS pan/zoom stability (#336)
+- Xamarin.Forms iOS PlotViewRenderer crash (#458) 
+- Inaccurate tracker when using LogarithmicAxis (#443)
+- Fix reset of transforms in WinForms render context (#489)
+- Fix StringFormat for TimeSpanAxis not recognizing f, ff, fff, etc (#330)
+- Fix  LineSeries SMOOTH=True will crash WinForms on right click (#499)
+- Fix PlotView leak on iOS (#503)
+- This PlotModel is already in use by some other PlotView control (#497)
+- LegendTextColor not synchronized between wpf.Plot and InternalModel (#548)
+- Legend in CandleStickSeries does not scale correctly (#554)
 
 ## [2014.1.546] - 2014-10-22
 ### Added

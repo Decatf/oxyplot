@@ -11,14 +11,20 @@
     ftp_password:
       secure: 8Zwx5dScSahnbraTsKTP3g==
   install:
-    - cinst stylecop
-    - cinst LynxToolkit
-    - cinst gtksharp
-    - cinst gitlink -Pre
+    - cinst stylecop -y
+    - cinst LynxToolkit -y
+    - cinst gitlink -Pre -y
+    - if not exist gtk-sharp-2.12.26.msi appveyor DownloadFile http://download.xamarin.com/GTKforWindows/Windows/gtk-sharp-2.12.26.msi
+    - msiexec /i gtk-sharp-2.12.26.msi /qn /norestart
+    - if not exist gtk-sharp-2.99.3.msi appveyor DownloadFile https://download.gnome.org/binaries/win32/gtk-sharp/2.99/gtk-sharp-2.99.3.msi
+    - msiexec /i gtk-sharp-2.99.3.msi /qn /norestart
+  cache:
+    - gtk-sharp-2.12.26.msi
+    - gtk-sharp-2.99.3.msi
   platform: Any CPU
   configuration: Release
   before_build:
-    - cmd: UpdateVersionNumbers /Version=%APPVEYOR_BUILD_VERSION% /Dependency=OxyPlot.Core /ExtractReleaseNotes=CHANGELOG.md /Directory=Source
+    - cmd: UpdateVersionNumbers /Version=%APPVEYOR_BUILD_VERSION% /Dependency=OxyPlot.Core /Dependency=OxyPlot.Wpf /Dependency=OxyPlot.WindowsForms /Dependency=OxyPlot.WindowsUniversal /Dependency=OxyPlot.Silverlight /Dependency=OxyPlot.WP8 /ExtractReleaseNotes=CHANGELOG.md /Directory=Source
     - cmd: NuGet restore Source/OxyPlot.AppVeyor.sln
   build:
     project: Source/OxyPlot.AppVeyor.sln
@@ -34,6 +40,7 @@
     - cmd: NuGet pack Source\OxyPlot.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot\OxyPlot.Core.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Wpf\OxyPlot.Wpf.nuspec -OutputDirectory Packages
+    - cmd: NuGet pack Source\OxyPlot.Windows\OxyPlot.Windows.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WindowsForms\OxyPlot.WindowsForms.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WindowsUniversal\OxyPlot.WindowsUniversal.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WP8\OxyPlot.WP8.nuspec -OutputDirectory Packages
@@ -41,6 +48,7 @@
     - cmd: NuGet pack Source\OxyPlot.OpenXml\OxyPlot.OpenXml.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Pdf\OxyPlot.Pdf.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.GtkSharp\OxyPlot.GtkSharp.nuspec -OutputDirectory Packages
+    - cmd: NuGet pack Source\OxyPlot.GtkSharp\OxyPlot.GtkSharp3.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Xwt\OxyPlot.Xwt.nuspec -OutputDirectory Packages
     - cmd: for %%G in (Packages\*.nupkg) do NuGet push %%G %nuget_api_key%
     - cmd: FtpUpload ftp.oxyplot.org %ftp_user% %ftp_password% Output\SL5\Examples\Silverlight\ExampleBrowser\ExampleBrowser.xap /ExampleBrowser/ExampleBrowser.xap
@@ -59,15 +67,21 @@
     ftp_password:
       secure: 8Zwx5dScSahnbraTsKTP3g==
   install:
-    - cinst stylecop
-    - cinst LynxToolkit
-    - cinst gtksharp
-    - cinst gitlink -Pre
+    - cinst stylecop -y
+    - cinst LynxToolkit -y
+    - cinst gitlink -Pre -y
+    - if not exist gtk-sharp-2.12.26.msi appveyor DownloadFile http://download.xamarin.com/GTKforWindows/Windows/gtk-sharp-2.12.26.msi
+    - msiexec /i gtk-sharp-2.12.26.msi /qn /norestart
+    - if not exist gtk-sharp-2.99.3.msi appveyor DownloadFile https://download.gnome.org/binaries/win32/gtk-sharp/2.99/gtk-sharp-2.99.3.msi
+    - msiexec /i gtk-sharp-2.99.3.msi /qn /norestart
+  cache:
+    - gtk-sharp-2.12.26.msi
+    - gtk-sharp-2.99.3.msi
   platform: Any CPU
   configuration: Release
   before_build:
     - cmd: git submodule update --init --recursive
-    - cmd: UpdateVersionNumbers /Version=%version% /PreRelease=alpha /Dependency=OxyPlot.Core /ExtractReleaseNotes=CHANGELOG.md /Directory=Source
+    - cmd: UpdateVersionNumbers /Version=%version% /PreRelease=alpha /Dependency=OxyPlot.Core /Dependency=OxyPlot.Wpf /Dependency=OxyPlot.WindowsForms /Dependency=OxyPlot.WindowsUniversal /Dependency=OxyPlot.Silverlight /Dependency=OxyPlot.WP8 /ExtractReleaseNotes=CHANGELOG.md /Directory=Source
     - cmd: NuGet restore Source/OxyPlot.AppVeyor.sln
   build:
     project: Source/OxyPlot.AppVeyor.sln
@@ -83,6 +97,7 @@
     - cmd: NuGet pack Source\OxyPlot.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot\OxyPlot.Core.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Wpf\OxyPlot.Wpf.nuspec -OutputDirectory Packages
+    - cmd: NuGet pack Source\OxyPlot.Windows\OxyPlot.Windows.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WindowsForms\OxyPlot.WindowsForms.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WindowsUniversal\OxyPlot.WindowsUniversal.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.WP8\OxyPlot.WP8.nuspec -OutputDirectory Packages
@@ -90,6 +105,7 @@
     - cmd: NuGet pack Source\OxyPlot.OpenXml\OxyPlot.OpenXml.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Pdf\OxyPlot.Pdf.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.GtkSharp\OxyPlot.GtkSharp.nuspec -OutputDirectory Packages
+    - cmd: NuGet pack Source\OxyPlot.GtkSharp\OxyPlot.GtkSharp3.nuspec -OutputDirectory Packages
     - cmd: NuGet pack Source\OxyPlot.Xwt\OxyPlot.Xwt.nuspec -OutputDirectory Packages
     - cmd: for %%G in (Packages\*.nupkg) do NuGet push %%G %nuget_api_key%
     - cmd: FtpUpload ftp.oxyplot.org %ftp_user% %ftp_password% Output\SL5\Examples\Silverlight\ExampleBrowser\ExampleBrowser.xap /ExampleBrowser/ExampleBrowser.xap

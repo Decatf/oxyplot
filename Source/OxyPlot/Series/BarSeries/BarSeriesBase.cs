@@ -181,8 +181,7 @@ namespace OxyPlot.Series
         /// Renders the series on the specified rendering context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             this.ActualBarRectangles = new List<OxyRect>();
 
@@ -434,7 +433,8 @@ namespace OxyPlot.Series
             var categoryAxis = this.GetCategoryAxis();
             var valueAxis = this.GetValueAxis();
 
-            var text = this.Format(
+            var text = StringHelper.Format(
+                this.ActualCulture, 
                 this.TrackerFormatString,
                 item,
                 this.Title,

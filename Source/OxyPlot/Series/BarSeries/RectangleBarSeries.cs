@@ -122,7 +122,8 @@ namespace OxyPlot.Series
                         Position = sp,
                         Item = item,
                         Index = i,
-                        Text = this.Format(
+                        Text = StringHelper.Format(
+                        this.ActualCulture, 
                         this.TrackerFormatString,
                         item,
                         this.Title,
@@ -144,8 +145,7 @@ namespace OxyPlot.Series
         /// Renders the series on the specified rendering context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             if (this.Items.Count == 0)
             {
@@ -182,7 +182,8 @@ namespace OxyPlot.Series
 
                 if (this.LabelFormatString != null)
                 {
-                    var s = this.Format(
+                    var s = StringHelper.Format(
+                        this.ActualCulture, 
                         this.LabelFormatString,
                         this.GetItem(i),
                         item.X0,

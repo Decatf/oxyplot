@@ -36,9 +36,9 @@ namespace OxyPlot.Xamarin.Forms.Platform.Android
                 Controller = this.Element.Controller
             };
 
-            if (this.Element.Model.Background.IsVisible())
+            if (this.Element.Model != null && this.Element.Model.Background.IsVisible())
             {
-                plotView.Background = new global::Android.Graphics.Drawables.ColorDrawable(this.Element.Model.Background.ToColor());
+                plotView.SetBackgroundColor(this.Element.Model.Background.ToColor());
             }
 
             this.SetNativeControl(plotView);

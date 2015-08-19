@@ -10,6 +10,7 @@
 namespace OxyPlot.Series
 {
     using System;
+    using System.Reflection;
 
     using OxyPlot.Axes;
 
@@ -100,8 +101,7 @@ namespace OxyPlot.Series
         /// Renders the series on the specified rendering context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The owner plot model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             var nitems = this.Items.Count;
             var items = this.Items;
@@ -202,9 +202,9 @@ namespace OxyPlot.Series
 
             var datacandlewidth = (this.CandleWidth > 0) ? this.CandleWidth : this.minDx * 0.80;
 
-            var candlewidth = 
-                this.XAxis.Transform(this.Items[0].X + datacandlewidth) -
-                this.XAxis.Transform(this.Items[0].X); 
+            var candlewidth = Math.Min(
+                legendBox.Width,
+                this.XAxis.Transform(this.Items[0].X + datacandlewidth) - this.XAxis.Transform(this.Items[0].X));
 
             rc.DrawLine(
                 new[] { new ScreenPoint(xmid, legendBox.Top), new ScreenPoint(xmid, legendBox.Bottom) },
@@ -352,7 +352,7 @@ namespace OxyPlot.Series
             if (propertyName != null)
             {
                 var type = item.GetType();
-                var prop = type.GetProperty(propertyName);
+                var prop = type.GetRuntimeProperty(propertyName);
                 return Axis.ToDouble(prop.GetValue(item, null));
             }
             

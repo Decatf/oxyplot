@@ -87,6 +87,9 @@ namespace OxyPlot.MonoTouch
                 HandlePanZoomGesture();
             });
 
+            // Do not intercept touches on overlapping views
+            this.panZoomGesture.ShouldReceiveTouch += (recognizer, touch) => touch.View == this;
+            
             this.AddGestureRecognizer(this.panZoomGesture);
         }
 
@@ -113,12 +116,6 @@ namespace OxyPlot.MonoTouch
 
                     if (value != null)
                     {
-                        if (value.PlotView != null)
-                        {
-                            throw new InvalidOperationException(
-                                "This PlotModel is already in use by some other PlotView control.");
-                        }
-
                         ((IPlotModel)value).AttachPlotView(this);
                         this.model = value;
                     }

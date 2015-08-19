@@ -80,12 +80,10 @@ namespace OxyPlot.Xamarin.iOS
             this.BackgroundColor = UIColor.White;
             this.KeepAspectRatioWhenPinching = true;
 
-            this.panZoomGesture.AddTarget(() =>
-            {
-                HandlePanZoomGesture();
-            });
+			this.panZoomGesture.AddTarget(HandlePanZoomGesture);
 
-            this.AddGestureRecognizer(this.panZoomGesture);
+            // Do not intercept touches on overlapping views
+            this.panZoomGesture.ShouldReceiveTouch += (recognizer, touch) => touch.View == this;
         }
 
         /// <summary>
@@ -111,12 +109,6 @@ namespace OxyPlot.Xamarin.iOS
 
                     if (value != null)
                     {
-                        if (value.PlotView != null)
-                        {
-                            throw new InvalidOperationException(
-                                "This PlotModel is already in use by some other PlotView control.");
-                        }
-
                         ((IPlotModel)value).AttachPlotView(this);
                         this.model = value;
                     }
@@ -332,6 +324,25 @@ namespace OxyPlot.Xamarin.iOS
                 this.ActualController.HandleGesture(this, new OxyShakeGesture(), new OxyKeyEventArgs());
             }
         }
+
+		/// <summary>
+		/// Used to add/remove the gesture recognizer so that it
+		/// doesn't prevent the PlotView from being garbage-collected.
+		/// </summary>
+		/// <param name="newsuper">New superview</param>
+		public override void WillMoveToSuperview (UIView newsuper)
+		{
+			if (newsuper == null)
+			{
+				this.RemoveGestureRecognizer (this.panZoomGesture);
+			}
+			else if (this.Superview == null)
+			{
+				this.AddGestureRecognizer (this.panZoomGesture);
+			}
+
+			base.WillMoveToSuperview (newsuper);
+		}
 
         private void HandlePanZoomGesture()
         {

@@ -51,6 +51,7 @@ namespace OxyPlot.Series
             this.NegativeHollow = false;
             this.PositiveHollow = true;
             this.StrokeIntensity = 0.80;
+            this.VolumeStyle = VolumeStyle.Combined;
 
             this.InterceptColor = OxyColors.Gray;
             this.InterceptLineStyle = LineStyle.Dash;
@@ -77,7 +78,7 @@ namespace OxyPlot.Series
         }
 
         /// <summary>
-        /// Gets or sets the style of volume rendering
+        /// Gets or sets the style of volume rendering (defaults to Combined)
         /// </summary>
         public VolumeStyle VolumeStyle { get; set; }
 
@@ -138,6 +139,21 @@ namespace OxyPlot.Series
         public double BarWidth { get; set; }
 
         /// <summary>
+        /// Gets or sets the minimum volume seen in the data series.
+        /// </summary>
+        public double MinimumVolume { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the maximum volume seen in the data series.
+        /// </summary>
+        public double MaximumVolume { get; protected set; }
+
+        /// <summary>
+        /// Gets or sets the average volume seen in the data series.
+        /// </summary>
+        public double AverageVolume { get; protected set; }
+
+        /// <summary>
         /// Append a bar to the series (must be in X order)
         /// </summary>
         /// <param name="bar">The Bar.</param>
@@ -176,8 +192,7 @@ namespace OxyPlot.Series
         /// Renders the series on the specified rendering context.
         /// </summary>
         /// <param name="rc">The rendering context.</param>
-        /// <param name="model">The owner plot model.</param>
-        public override void Render(IRenderContext rc, PlotModel model)
+        public override void Render(IRenderContext rc)
         {
             if (this.data == null || this.data.Count == 0)
             {
@@ -414,6 +429,92 @@ namespace OxyPlot.Series
             {
                 this.minDx = 1;
             }
+        }
+
+        /// <summary>
+        /// Updates the axes to include the max and min of this series.
+        /// </summary>
+        protected internal override void UpdateAxisMaxMin()
+        {
+            this.XAxis.Include(this.MinX);
+            this.XAxis.Include(this.MaxX);
+
+            var ymin = this.MinimumVolume;
+            var ymax = this.MaximumVolume;
+            var yavg = this.AverageVolume;
+
+            var yquartile = (ymax - ymin) / 4.0;
+
+            switch (VolumeStyle)
+            {
+                case VolumeStyle.PositiveNegative:
+                    ymin = -(yavg + (yquartile / 2.0));
+                    ymax = +(yavg + (yquartile / 2.0));
+                    break;
+                case VolumeStyle.Stacked:
+                    ymax = yavg + yquartile;
+                    ymin = 0;
+                    break;
+                default:
+                case VolumeStyle.Combined:
+                    ymax = yavg + (yquartile / 2.0);
+                    ymin = 0;
+                    break;
+            }
+
+            ymin = Math.Max(this.YAxis.FilterMinValue, ymin);
+            ymax = Math.Min(this.YAxis.FilterMaxValue, ymax);
+            this.YAxis.Include(ymin);
+            this.YAxis.Include(ymax);
+        }
+
+        /// <summary>
+        /// Updates the maximum and minimum values of the series.
+        /// </summary>
+        protected internal override void UpdateMaxMin()
+        {
+            base.UpdateMaxMin();
+
+            var xmin = double.MaxValue;
+            var xmax = double.MinValue;
+            var ymin = 0.0;
+            var ymax = double.MinValue;
+
+            var nvol = 0.0;
+            var cumvol = 0.0;
+
+            foreach (var bar in this.Items)
+            {
+                if (!bar.IsValid())
+                {
+                    continue;
+                }
+
+                if (bar.SellVolume > 0)
+                {
+                    nvol++;
+                }
+
+                if (bar.BuyVolume > 0)
+                {
+                    nvol++;
+                }
+
+                cumvol += bar.BuyVolume;
+                cumvol += bar.SellVolume;
+
+                xmin = Math.Min(xmin, bar.X);
+                xmax = Math.Max(xmax, bar.X);
+                ymin = Math.Min(ymin, -bar.SellVolume);
+                ymax = Math.Max(ymax, +bar.BuyVolume);
+            }
+
+            this.MinX = Math.Max(this.XAxis.FilterMinValue, xmin);
+            this.MaxX = Math.Min(this.XAxis.FilterMaxValue, xmax);
+
+            this.MinimumVolume = ymin;
+            this.MaximumVolume = ymax;
+            this.AverageVolume = cumvol / nvol;
         }
     }
 }

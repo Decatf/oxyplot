@@ -44,7 +44,7 @@ namespace OxyPlot
             {
                 try
                 {
-                    if (this.updateException != null)
+                    if (this.lastPlotException != null)
                     {
                         // There was an exception during plot model update. 
                         // This could happen when OxyPlot is given invalid input data. 
@@ -52,9 +52,9 @@ namespace OxyPlot
                         // If the client application submitted invalid data, show the exception message and stack trace.
                         var errorMessage = string.Format(
                                 "An exception of type {0} was thrown when updating the plot model.\r\n{1}",
-                                this.updateException.GetType(),
-                                this.updateException.GetBaseException().StackTrace);
-                        this.RenderErrorMessage(rc, string.Format("OxyPlot exception: {0}", this.updateException.Message), errorMessage);
+                                this.lastPlotException.GetType(),
+                                this.lastPlotException.GetBaseException().StackTrace);
+                        this.RenderErrorMessage(rc, string.Format("OxyPlot exception: {0}", this.lastPlotException.Message), errorMessage);
                         return;
                     }
 
@@ -127,6 +127,7 @@ namespace OxyPlot
                             "An exception of type {0} was thrown when rendering the plot model.\r\n{1}",
                             exception.GetType(),
                             exception.GetBaseException().StackTrace);
+                    this.lastPlotException = exception;
                     this.RenderErrorMessage(rc, string.Format("OxyPlot exception: {0}", exception.Message), errorMessage);
                 }
                 finally
@@ -247,7 +248,7 @@ namespace OxyPlot
 
             for (var position = AxisPosition.Left; position <= AxisPosition.Bottom; position++)
             {
-                var axesOfPosition = this.VisibleAxes.Where(a => a.Position == position).ToList();
+                var axesOfPosition = this.Axes.Where(a => a.IsAxisVisible && a.Position == position).ToList();
                 var requiredSize = this.AdjustAxesPositions(rc, axesOfPosition);
 
                 if (!this.IsPlotMarginAutoSized(position))
@@ -259,7 +260,7 @@ namespace OxyPlot
             }
 
             // Special case for AngleAxis which is all around the plot
-            var angularAxes = this.VisibleAxes.OfType<AngleAxis>().Cast<Axis>().ToList();
+            var angularAxes = this.Axes.Where(a => a.IsAxisVisible).OfType<AngleAxis>().Cast<Axis>().ToList();
 
             if (angularAxes.Any())
             {
@@ -343,7 +344,7 @@ namespace OxyPlot
             foreach (var a in this.Annotations.Where(a => a.Layer == layer))
             {
                 rc.SetToolTip(a.ToolTip);
-                a.Render(rc, this);
+                a.Render(rc);
             }
 
             rc.SetToolTip(null);
@@ -356,17 +357,18 @@ namespace OxyPlot
         /// <param name="layer">The layer.</param>
         private void RenderAxes(IRenderContext rc, AxisLayer layer)
         {
-            for (int i = 0; i < 2; i++)
+            // render pass 0
+            foreach (var a in this.Axes.Where(a => a.IsAxisVisible && a.Layer == layer))
             {
-                foreach (var a in this.VisibleAxes)
-                {
-                    rc.SetToolTip(a.ToolTip);
+                rc.SetToolTip(a.ToolTip);
+                a.Render(rc, 0);
+            }
 
-                    if (a.Layer == layer)
-                    {
-                        a.Render(rc, this, layer, i);
-                    }
-                }
+            // render pass 1
+            foreach (var a in this.Axes.Where(a => a.IsAxisVisible && a.Layer == layer))
+            {
+                rc.SetToolTip(a.ToolTip);
+                a.Render(rc, 1);
             }
 
             rc.SetToolTip(null);
@@ -385,7 +387,7 @@ namespace OxyPlot
                 rc.DrawRectangleAsPolygon(this.PlotArea, this.PlotAreaBackground, OxyColors.Undefined, 0);
             }
 
-            foreach (var s in this.VisibleSeries.Where(s => s is XYAxisSeries && s.Background.IsVisible()).Cast<XYAxisSeries>())
+            foreach (var s in this.Series.Where(s => s.IsVisible && s is XYAxisSeries && s.Background.IsVisible()).Cast<XYAxisSeries>())
             {
                 rc.DrawRectangle(s.GetScreenRectangle(), s.Background, OxyColors.Undefined, 0);
             }
@@ -411,10 +413,10 @@ namespace OxyPlot
         /// <param name="rc">The render context.</param>
         private void RenderSeries(IRenderContext rc)
         {
-            foreach (var s in this.VisibleSeries)
+            foreach (var s in this.Series.Where(s => s.IsVisible))
             {
                 rc.SetToolTip(s.ToolTip);
-                s.Render(rc, this);
+                s.Render(rc);
             }
 
             rc.SetToolTip(null);
@@ -433,6 +435,8 @@ namespace OxyPlot
 
             if (!string.IsNullOrEmpty(this.Title))
             {
+                rc.SetToolTip(this.TitleToolTip);
+
                 rc.DrawMathText(
                     new ScreenPoint(x, y),
                     this.Title,
@@ -444,6 +448,8 @@ namespace OxyPlot
                     HorizontalAlignment.Center,
                     VerticalAlignment.Top);
                 y += titleSize.Height;
+
+                rc.SetToolTip(null);
             }
 
             if (!string.IsNullOrEmpty(this.Subtitle))

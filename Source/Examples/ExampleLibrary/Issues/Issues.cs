@@ -10,8 +10,10 @@
 namespace ExampleLibrary
 {
     using System;
-    using System.Threading;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     using OxyPlot;
     using OxyPlot.Annotations;
@@ -773,23 +775,29 @@ namespace ExampleLibrary
             var textAnnotation = new TextAnnotation() { Text = "Hold mouse button here to increase angle", TextPosition = new DataPoint(0, 6), TextHorizontalAlignment = HorizontalAlignment.Left, TextVerticalAlignment = VerticalAlignment.Top };
             plotModel1.Annotations.Add(textAnnotation);
 
-            Timer t = new Timer(o =>
+            var abort = new ManualResetEvent(false);
+
+            Action action = () =>
             {
-                // Angles are the same for all axes.
-                double angle = 0;
-
-                foreach (var axis in plotModel1.Axes)
+                do
                 {
-                    angle = (axis.Angle + 181) % 360 - 180;
-                    axis.Angle = angle;
+                    // Angles are the same for all axes.
+                    double angle = 0;
+
+                    foreach (var axis in plotModel1.Axes)
+                    {
+                        angle = (axis.Angle + 181) % 360 - 180;
+                        axis.Angle = angle;
+                    }
+
+                    plotModel1.Subtitle = string.Format("Current angle is {0}", angle);
+                    plotModel1.InvalidatePlot(false);
                 }
+                while (!abort.WaitOne(50));
+            };
 
-                plotModel1.Subtitle = string.Format("Current angle is {0}", angle);
-                plotModel1.InvalidatePlot(false);
-            }, null, -1, 50);
-
-            textAnnotation.MouseDown += (o, e) => { t.Change(0, 50); };
-            plotModel1.MouseUp += (o, e) => { t.Change(-1, 50); };
+            textAnnotation.MouseDown += (o, e) => { abort.Reset(); Task.Factory.StartNew(action); };
+            plotModel1.MouseUp += (o, e) => { abort.Set(); };
 
             var columnSeries = new ColumnSeries();
             columnSeries.Items.Add(new ColumnItem(5));
@@ -874,7 +882,7 @@ namespace ExampleLibrary
             return plotModel1;
         }
 
-        [Example("#356 Draw legend line with custom pattern")]
+        [Example("#356: Draw legend line with custom pattern")]
         public static PlotModel LegendWithCustomPattern()
         {
             var plotModel1 = new PlotModel
@@ -892,7 +900,7 @@ namespace ExampleLibrary
                 Title = "Custom",
                 LineStyle = LineStyle.Solid,
                 // dashd-dot pattern
-                Dashes = new[] {10.0, 2.0, 4.0, 2.0},
+                Dashes = new[] { 10.0, 2.0, 4.0, 2.0 },
             };
             solid.Points.Add(new DataPoint(0, 2));
             solid.Points.Add(new DataPoint(100, 1));
@@ -903,5 +911,302 @@ namespace ExampleLibrary
             plotModel1.LegendSymbolLength = 100; // wide enough to see pattern
             return plotModel1;
         }
+
+        [Example("#409: ImageAnnotation width width/height crashes")]
+        public static PlotModel ImageAnnotationWithWidthHeightCrashes()
+        {
+            var myModel = new PlotModel { Title = "Example 1" };
+            myModel.Series.Add(new FunctionSeries(Math.Cos, 0, 10, 0.1, "cos(x)"));
+
+            var rng = new Random();
+            var buf = new byte[100, 100];
+            for (int i = 0; i < 100; i++)
+            {
+                for (int j = 0; j < 100; j++)
+                {
+                    buf[i, j] = (byte)rng.Next();
+                }
+            }
+
+            var palette = new OxyColor[256];
+            for (int i = 0; i < palette.Length; i++)
+            {
+                palette[i] = OxyColor.FromArgb(128, (byte)i, 0, 0);
+            }
+
+            var image = OxyImage.Create(buf, palette, ImageFormat.Bmp);
+            myModel.Annotations.Add(new ImageAnnotation
+            {
+                ImageSource = image,
+
+                X = new PlotLength(1, PlotLengthUnit.Data),
+                Y = new PlotLength(0, PlotLengthUnit.Data),
+                Width = new PlotLength(1, PlotLengthUnit.Data),
+                Height = new PlotLength(1, PlotLengthUnit.Data)
+            });
+
+            myModel.Annotations.Add(new ImageAnnotation
+            {
+                ImageSource = image,
+
+                X = new PlotLength(5, PlotLengthUnit.Data),
+                Y = new PlotLength(0, PlotLengthUnit.Data),
+            });
+
+            return myModel;
+        }
+
+        [Example("#413: HeatMap tracker format string")]
+        public static PlotModel HeatMapTrackerFormatString()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "HeatMap tracker format string",
+            };
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Left, StringFormat = "0.000", Minimum = 0, Maximum = 1 });
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, StringFormat = "0.000", Minimum = 0, Maximum = 1 });
+            plotModel1.Axes.Add(new LinearColorAxis { Position = AxisPosition.Right, Minimum = 0, Maximum = 5 });
+            var data = new double[,] { { 1, 2 }, { 3, 4 } };
+            plotModel1.Series.Add(new HeatMapSeries
+            {
+                Data = data,
+                CoordinateDefinition = HeatMapCoordinateDefinition.Edge,
+                X0 = 0.1,
+                X1 = 0.9,
+                Y0 = 0.1,
+                Y1 = 0.9,
+                TrackerFormatString = "{0}\n{1}: {2:0.000}\n{3}: {4:0.000}\n{5}: {6:0.0000}"
+            });
+            return plotModel1;
+        }
+
+        [Example("#413: Using axis format strings in tracker")]
+        public static PlotModel AxisFormatStringInTracker()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "Using axis format strings in tracker",
+            };
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Left, StringFormat = "0.000", Minimum = 0, Maximum = 1 });
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, StringFormat = "0.000", Minimum = 0, Maximum = 1 });
+            plotModel1.Axes.Add(new LinearColorAxis { Position = AxisPosition.Right, Minimum = 0, Maximum = 5 });
+            var data = new double[,] { { 1, 2 }, { 3, 4 } };
+            plotModel1.Series.Add(new HeatMapSeries
+            {
+                Data = data,
+                CoordinateDefinition = HeatMapCoordinateDefinition.Edge,
+                X0 = 0.1,
+                X1 = 0.9,
+                Y0 = 0.1,
+                Y1 = 0.9,
+
+                // IDEA: add new arguments for axis formatted values
+                // TODO: this will throw an exception, argument 7 and 8 is not implemented
+                TrackerFormatString = "{0}\n{1}: {7}\n{3}: {8}\n{5}: {6:0.0000}"
+            });
+            return plotModel1;
+        }
+
+        [Example("#408: CategoryAxis label clipped on left margin")]
+        public static PlotModel CategoryAxisLabelClipped()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "CategoryAxis label clipped on left margin",
+            };
+            var axis = new CategoryAxis { Position = AxisPosition.Left, Angle = -52 };
+            axis.Labels.Add("Very very very very long label");
+            axis.Labels.Add("Short label");
+            axis.Labels.Add("Short label");
+            axis.Labels.Add("Short label");
+            plotModel1.Axes.Add(axis);
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom });
+            return plotModel1;
+        }
+
+        [Example("#402: ColumnSeries with dates")]
+        public static PlotModel ColumnSeriesWithDates()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "ColumnSeries with dates",
+                Culture = CultureInfo.InvariantCulture
+            };
+            var data = new[]
+            {
+                new TimeValue { Time = new DateTime(2015, 1, 1), Value = 700 },
+                new TimeValue { Time = new DateTime(2015, 1, 2), Value = 710 },
+                new TimeValue { Time = new DateTime(2015, 1, 3), Value = 580},
+                new TimeValue { Time = new DateTime(2015, 1, 4), Value = 710 },
+                new TimeValue { Time = new DateTime(2015, 1, 5), Value = 715 },
+                new TimeValue { Time = new DateTime(2015, 1, 6), Value = 580 },
+            };
+
+            plotModel1.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Minimum = 0, Maximum = 1000 });
+            plotModel1.Axes.Add(new CategoryAxis { ItemsSource = data, LabelField = "Time", StringFormat = "ddd" });
+            plotModel1.Series.Add(new ColumnSeries { ItemsSource = data, ValueField = "Value" });
+            return plotModel1;
+        }
+
+        private class TimeValue
+        {
+            public DateTime Time { get; set; }
+            public double Value { get; set; }
+        }
+
+        [Example("#474: Vertical Axis Title Font Bug")]
+        public static PlotModel VerticalAxisTitleFontBug()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "Vertical Axis Title Font Bug",
+            };
+
+            plotModel1.Axes.Add(new LinearAxis
+            {
+                Title = "X_Axe",
+                Position = AxisPosition.Bottom,
+                MajorGridlineStyle = LineStyle.Solid,
+                TitleFont = "Times New Roman"
+            });
+
+            plotModel1.Axes.Add(new LinearAxis
+            {
+                Title = "Y_Axe",
+                Position = AxisPosition.Left,
+                MajorGridlineStyle = LineStyle.Solid,
+                TitleFont = "Times New Roman"
+            });
+
+            return plotModel1;
+        }
+
+		
+		[Example("#535: Transposed HeatMap")]
+		public static PlotModel TransposedHeatMap()
+		{
+			int n = 100;
+
+			double x0 = -3.1;
+			double x1 = 3.1;
+			double y0 = -3;
+			double y1 = 3;
+			Func<double, double, double> peaks = (x, y) => 3 * (1 - x) * (1 - x) * Math.Exp(-(x * x) - (y + 1) * (y + 1)) - 10 * (x / 5 - x * x * x - y * y * y * y * y) * Math.Exp(-x * x - y * y) - 1.0 / 3 * Math.Exp(-(x + 1) * (x + 1) - y * y);
+			var xvalues = ArrayBuilder.CreateVector(x0, x1, n);
+			var yvalues = ArrayBuilder.CreateVector(y0, y1, n);
+			var peaksData = ArrayBuilder.Evaluate(peaks, xvalues, yvalues);
+
+			var model = new PlotModel { Title = "Normal Heatmap" };
+
+			model.Axes.Add(
+				new LinearAxis() { Key = "x_axis", AbsoluteMinimum = x0, AbsoluteMaximum = x1, Position = AxisPosition.Left });
+
+			model.Axes.Add(
+				new LinearAxis() { Key = "y_axis", AbsoluteMinimum = y0, AbsoluteMaximum = y1, Position = AxisPosition.Top });
+
+			model.Axes.Add(new LinearColorAxis { Position = AxisPosition.Right, Palette = OxyPalettes.Jet(500), HighColor = OxyColors.Gray, LowColor = OxyColors.Black });
+
+			var hms = new HeatMapSeries
+			{
+				X0 = x0,
+				X1 = x1,
+				Y0 = y0,
+				Y1 = y1,
+				Data = peaksData,
+				XAxisKey = "x_axis",
+				YAxisKey = "y_axis"
+			};
+			model.Series.Add(hms);
+
+			return model;
+		}
+
+		[Example("#535: Normal HeatMap")]
+		public static PlotModel NormalHeatMap()
+		{
+			int n = 100;
+
+			double x0 = -3.1;
+			double x1 = 3.1;
+			double y0 = -3;
+			double y1 = 3;
+			Func<double, double, double> peaks = (x, y) => 3 * (1 - x) * (1 - x) * Math.Exp(-(x * x) - (y + 1) * (y + 1)) - 10 * (x / 5 - x * x * x - y * y * y * y * y) * Math.Exp(-x * x - y * y) - 1.0 / 3 * Math.Exp(-(x + 1) * (x + 1) - y * y);
+			var xvalues = ArrayBuilder.CreateVector(x0, x1, n);
+			var yvalues = ArrayBuilder.CreateVector(y0, y1, n);
+			var peaksData = ArrayBuilder.Evaluate(peaks, xvalues, yvalues);
+
+			var model = new PlotModel { Title = "Peaks" };
+
+			model.Axes.Add(
+	new LinearAxis() { Key = "x_axis", AbsoluteMinimum = x0, AbsoluteMaximum = x1, Position = AxisPosition.Top });
+
+			model.Axes.Add(
+				new LinearAxis() { Key = "y_axis", AbsoluteMinimum = y0, AbsoluteMaximum = y1, Position = AxisPosition.Left });
+
+			model.Axes.Add(new LinearColorAxis { Position = AxisPosition.Right, Palette = OxyPalettes.Jet(500), HighColor = OxyColors.Gray, LowColor = OxyColors.Black });
+
+			var hms = new HeatMapSeries
+			{
+				X0 = x0,
+				X1 = x1,
+				Y0 = y0,
+				Y1 = y1,
+				Data = peaksData,
+				XAxisKey = "x_axis",
+				YAxisKey = "y_axis"
+			};
+			model.Series.Add(hms);
+
+			return model;
+		}
+
+		[Example("#42: ContourSeries not working for not square data array")]
+		public static PlotModel IssueDescription()
+		{
+			int n = 100;
+			double x0 = -3.1;
+			double x1 = 3.1;
+			double y0 = -3;
+			double y1 = 3;
+			Func<double, double, double> peaks = (x, y) => 3 * (1 - x) * (1 - x) * Math.Exp(-(x * x) - (y + 1) * (y + 1)) - 10 * (x / 5 - x * x * x - y * y * y * y * y) * Math.Exp(-x * x - y * y) - 1.0 / 3 * Math.Exp(-(x + 1) * (x + 1) - y * y);
+			// see https://github.com/oxyplot/oxyplot/issues/511
+			var xvalues = ArrayBuilder.CreateVector(x0, x1, n * 10);
+			var yvalues = ArrayBuilder.CreateVector(y0, y1, n);
+			var peaksData = ArrayBuilder.Evaluate(peaks, xvalues, yvalues);
+			var model = new PlotModel { Title = "Peaks" };
+			model.Axes.Add(new LinearColorAxis { Position = AxisPosition.Right, Palette = OxyPalettes.Jet(500), HighColor = OxyColors.Gray, LowColor = OxyColors.Black });
+
+			var hms = new HeatMapSeries { X0 = x0, X1 = x1, Y0 = y0, Y1 = y1, Data = peaksData };
+			model.Series.Add(hms);
+			//if (includeContours)
+			{
+				var cs = new ContourSeries
+				{
+					Color = OxyColors.Black,
+					FontSize = 0,
+					ContourLevelStep = 1,
+					LabelBackground = OxyColors.Undefined,
+					ColumnCoordinates = yvalues,
+					RowCoordinates = xvalues,
+					Data = peaksData
+				};
+				model.Series.Add(cs);
+			}
+
+			return model;
+		}
+
+        /* NEW ISSUE TEMPLATE
+        [Example("#123: Issue Description")]
+        public static PlotModel IssueDescription()
+        {
+            var plotModel1 = new PlotModel
+            {
+                Title = "",
+            };
+
+            return plotModel1;
+        }
+        */
     }
 }
