@@ -63,11 +63,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Tracker\TrackerModel.cs" />
-    <Compile Include="Utilities\ConverterExtensions.cs" />
     <Compile Include="ExporterExtensions.cs" />
-    <Compile Include="PlotView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ConverterExtensions.cs" />
     <Compile Include="GraphicsRenderContext.cs" />
     <Compile Include="NamespaceDoc.cs" />

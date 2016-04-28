@@ -54,6 +54,12 @@
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ExporterExtensions.cs" />
+    <Compile Include="PlotOverlayControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="PlotOverlayGroupControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="PlotView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -64,6 +70,10 @@
     <Compile Include="PngExporter.cs" />
     <Compile Include="Properties\AssemblyDescription.cs" />
     <Compile Include="SvgExporter.cs" />
+    <Compile Include="Tracker\TrackerModel.cs" />
+    <Compile Include="TrackerView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
   </ItemGroup>
   <ItemGroup>
@@ -84,4 +94,3 @@
   </Target>
   -->
 </Project>
-
