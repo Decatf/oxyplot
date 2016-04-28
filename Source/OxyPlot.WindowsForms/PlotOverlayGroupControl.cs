@@ -15,11 +15,6 @@ namespace OxyPlot.WindowsForms
     {
 
         /// <summary>
-        /// Overlay controls.
-        /// </summary>
-        //private readonly List<PlotOverlayControl> _overlayControls;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PlotOverlayGroupControl"/> class.
         /// </summary>
         public PlotOverlayGroupControl()
@@ -29,17 +24,7 @@ namespace OxyPlot.WindowsForms
             SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             BackColor = Color.Transparent;
-
-            //_overlayControls = new List<PlotOverlayControl>();
         }
-
-        /// <summary>
-        /// Gets the overlay controls.
-        /// </summary>
-        //public List<PlotOverlayControl> OverlayControls
-        //{
-        //    get { return _overlayControls; }
-        //}
 
         /// <summary>
         /// Raises the System.Windows.Forms.Control.Paint event.
@@ -51,7 +36,6 @@ namespace OxyPlot.WindowsForms
 
             try
             {
-                //foreach (PlotOverlayControl overlay in _overlayControls)
                 foreach (PlotOverlayControl overlay in this.Controls)
                 {
                     if (!overlay.Visible)
@@ -82,7 +66,6 @@ namespace OxyPlot.WindowsForms
         {
             base.OnResize(e);
 
-            //foreach (var item in this._overlayControls)
             foreach (Control item in this.Controls)
             {
                 item.Size = this.Size;

@@ -31,7 +31,6 @@ namespace OxyPlot.WindowsForms
         /// <param name="e"></param>
         public void Render(PaintEventArgs e)
         {
-            //this.OnPaintBackground(e);
             this.OnPaint(e);
         }
 

@@ -5,6 +5,12 @@ namespace OxyPlot.WindowsForms.Tracker
 
     public class TrackerModel
     {
+
+        /// <summary>
+        /// Text box orientation
+        /// </summary>
+        private int orientation;
+
         /// <summary>
         /// Represents a tracker.
         /// </summary>
@@ -226,26 +232,14 @@ namespace OxyPlot.WindowsForms.Tracker
         }
 
         /// <summary>
-        /// Renders the plot with the specified rendering context.
+        /// Calculate the text box rectangle position and size
+        /// including text, border, and padding.
         /// </summary>
-        /// <param name="rc">The rendering context.</param>
-        public void Render(IRenderContext rc)
+        /// <param name="textSize">Tracker text size</param>
+        /// <returns>Text box rectangle.</returns>
+        private OxyRect CalculateTextRect(OxySize textSize)
         {
-            if (ScreenPoint.IsUndefined(this.TrackerLocation))
-            {
-                return;
-            }
-
-            string text = this.TrackerText;
-            OxySize textSize = rc.MeasureText(text, this.Font, this.FontSize, this.FontWeight);
-
             double textboxOffset = this.TextOffset < 0 ? 0 : this.TextOffset;
-            double textPadding = this.TextPadding < 0 ? 0 : this.TextPadding;
-
-            OxySize textArea = new OxySize(
-                textSize.Width + (float)(2.0 * textPadding),
-                textSize.Height + (float)(2.0 * textPadding));
-            textSize = textArea;
 
             OxyRect trackerBounds = this.TrackerBounds;
             ScreenPoint trackerPosition = this.TrackerLocation;
@@ -256,7 +250,7 @@ namespace OxyPlot.WindowsForms.Tracker
             double top = Math.Round(trackerPosition.Y - textSize.Height - textboxOffset);
 
             // determine textbox orientation
-            int orientation = 0; // top
+            orientation = 0; // top
             if (textboxBounds.Width > 0)
             {
                 if (left + textSize.Width > textboxBounds.Right)
@@ -284,24 +278,48 @@ namespace OxyPlot.WindowsForms.Tracker
                 }
             }
 
-            OxyRect textBox = new OxyRect(left, top,
+            return new OxyRect(left, top,
                 Math.Round(textSize.Width),
                 Math.Round(textSize.Height));
+        }
+
+        /// <summary>
+        /// Renders the plot with the specified rendering context.
+        /// </summary>
+        /// <param name="rc">The rendering context.</param>
+        public void Render(IRenderContext rc)
+        {
+            if (ScreenPoint.IsUndefined(this.TrackerLocation))
+            {
+                return;
+            }
+
+            string text = this.TrackerText;
+            OxySize textSize = rc.MeasureText(text, this.Font, this.FontSize, this.FontWeight);
+
+            double textPadding = this.TextPadding < 0 ? 0 : this.TextPadding;
+
+            OxySize textArea = new OxySize(
+                textSize.Width + (float)(2.0 * textPadding),
+                textSize.Height + (float)(2.0 * textPadding));
+            textSize = textArea;
+
+            OxyRect textBoxSize = this.CalculateTextRect(textSize);
 
             // get the text box points
             ScreenPoint[] borderPoints;
             ScreenPoint[] polyPoints;
-            this.CalculatePoints(orientation, textBox, textSize, out borderPoints, out polyPoints);
+            this.CalculatePoints(orientation, textBoxSize, textSize, out borderPoints, out polyPoints);
 
             // draw horizontal and vertical lines
             if (this.HorizontalLineVisible)
             {
                 var pen = new OxyPen(this.Color, this.BorderThickness, this.HorizontalLineStyle);
                 rc.DrawLine(
-                    (float)trackerPosition.X,
-                    (float)trackerBounds.Top,
-                    (float)trackerPosition.X,
-                    (float)trackerBounds.Bottom,
+                    (float)TrackerLocation.X,
+                    (float)TrackerBounds.Top,
+                    (float)TrackerLocation.X,
+                    (float)TrackerBounds.Bottom,
                     pen);
             }
 
@@ -309,36 +327,25 @@ namespace OxyPlot.WindowsForms.Tracker
             {
                 var pen = new OxyPen(this.Color, this.BorderThickness, this.HorizontalLineStyle);
                 rc.DrawLine(
-                    (float)trackerBounds.Left,
-                    trackerPosition.Y,
-                    (float)trackerBounds.Right,
-                    trackerPosition.Y,
+                    (float)TrackerBounds.Left,
+                    TrackerLocation.Y,
+                    (float)TrackerBounds.Right,
+                    TrackerLocation.Y,
                     pen);
             }
 
             // draw the textbox
-            rc.DrawRectangle(textBox, this.BackgroundColor, this.Color, 0);
+            rc.DrawRectangle(textBoxSize, this.BackgroundColor, this.Color, 0);
             rc.DrawLine(borderPoints, this.Color, this.BorderThickness, aliased: true);
-            //rc.DrawLineSegments(borderPoints, this.Color, this.BorderThickness, aliased:true);
-            //rc.DrawClippedRectangle(textBoxSize, textBoxSize, this.BackgroundColor, this.Color, this.BorderThickness);
 
             if (polyPoints.Length > 0)
             {
-                //e.Graphics.FillPolygon(textboxBrush, polyPoints);
-                //e.Graphics.DrawLines(textboxPen, polyPoints);
-                //rc.DrawLineSegments(polyPoints.Take(2).ToArray(), this.Color, this.BorderThickness);
-                //rc.DrawLineSegments(polyPoints.Skip(1).ToArray(), this.Color, this.BorderThickness);
                 rc.DrawPolygon(polyPoints, this.BackgroundColor, this.BackgroundColor, 0);
             }
 
-            //if (borderPoints.Length > 0)
-            //{
-            //    e.Graphics.DrawLines(textboxPen, borderPoints);
-            //}
-
             // draw the text
             rc.DrawText(
-                new ScreenPoint((float)(textBox.Left + textPadding), (float)(textBox.Top + textPadding)),
+                new ScreenPoint((float)(textBoxSize.Left + textPadding), (float)(textBoxSize.Top + textPadding)),
                 text,
                 this.TextColor,
                 this.Font,
