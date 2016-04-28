@@ -105,10 +105,23 @@ namespace OxyPlot.Wpf
                 "LegendItemSpacing", typeof(double), typeof(Plot), new PropertyMetadata(24.0, AppearanceChanged));
 
         /// <summary>
+        /// Identifies the <see cref="LegendLineSpacing"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty LegendLineSpacingProperty =
+            DependencyProperty.Register(
+                "LegendLineSpacing", typeof(double), typeof(Plot), new PropertyMetadata(0d, AppearanceChanged));
+
+        /// <summary>
         /// Identifies the <see cref="LegendMargin"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty LegendMarginProperty = DependencyProperty.Register(
             "LegendMargin", typeof(double), typeof(Plot), new PropertyMetadata(8.0, AppearanceChanged));
+
+        /// <summary>
+        /// Identifies the <see cref="LegendMaxHeight"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty LegendMaxHeightProperty =
+            DependencyProperty.Register("LegendMaxHeight", typeof(double), typeof(Plot), new UIPropertyMetadata(double.NaN, AppearanceChanged));
 
         /// <summary>
         /// Identifies the <see cref="LegendMaxWidth"/> dependency property.
@@ -231,8 +244,8 @@ namespace OxyPlot.Wpf
             typeof(IList<Color>),
             typeof(Plot),
             new PropertyMetadata(
-                new[] 
-            {  
+                new[]
+            {
                 Color.FromRgb(0x4E, 0x9A, 0x06),
                     Color.FromRgb(0xC8, 0x8D, 0x00),
                     Color.FromRgb(0xCC, 0x00, 0x00),
@@ -529,6 +542,23 @@ namespace OxyPlot.Wpf
         }
 
         /// <summary>
+        /// Gets or sets the spacing between columns of legend items (only for vertical orientation).
+        /// </summary>
+        /// <value>The spacing in device independent units.</value>
+        public double LegendColumnSpacing
+        {
+            get
+            {
+                return (double)this.GetValue(LegendColumnSpacingProperty);
+            }
+
+            set
+            {
+                this.SetValue(LegendColumnSpacingProperty, value);
+            }
+        }
+
+        /// <summary>
         /// Gets or sets LegendFont.
         /// </summary>
         public string LegendFont
@@ -609,8 +639,9 @@ namespace OxyPlot.Wpf
         }
 
         /// <summary>
-        /// Gets or sets LegendItemSpacing.
+        /// Gets or sets the horizontal spacing between legend items when the orientation is horizontal.
         /// </summary>
+        /// <value>The horizontal distance between items in device independent units.</value>
         public double LegendItemSpacing
         {
             get
@@ -625,19 +656,53 @@ namespace OxyPlot.Wpf
         }
 
         /// <summary>
-        /// Gets or sets the max width of the legends.
+        /// Gets or sets the vertical spacing between legend items.
+        /// </summary>
+        /// <value>The spacing in device independent units.</value>
+        public double LegendLineSpacing
+        {
+            get
+            {
+                return (double)this.GetValue(LegendLineSpacingProperty);
+            }
+
+            set
+            {
+                this.SetValue(LegendLineSpacingProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the max height of the legend.
+        /// </summary>
+        /// <value>The max width of the legends.</value>
+        public double LegendMaxHeight
+        {
+            get
+            {
+                return (double)this.GetValue(LegendMaxHeightProperty);
+            }
+
+            set
+            {
+                this.SetValue(LegendMaxHeightProperty, value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the max width of the legend.
         /// </summary>
         /// <value>The max width of the legends.</value>
         public double LegendMaxWidth
         {
             get
             {
-                return (double)GetValue(LegendMaxWidthProperty);
+                return (double)this.GetValue(LegendMaxWidthProperty);
             }
 
             set
             {
-                SetValue(LegendMaxWidthProperty, value);
+                this.SetValue(LegendMaxWidthProperty, value);
             }
         }
 
@@ -671,16 +736,6 @@ namespace OxyPlot.Wpf
             {
                 this.SetValue(LegendOrientationProperty, value);
             }
-        }
-
-        /// <summary>
-        /// Gets or sets the legend column spacing.
-        /// </summary>
-        /// <value>The legend column spacing.</value>
-        public double LegendColumnSpacing
-        {
-            get { return (double)GetValue(LegendColumnSpacingProperty); }
-            set { SetValue(LegendColumnSpacingProperty, value); }
         }
 
         /// <summary>
@@ -1223,8 +1278,15 @@ namespace OxyPlot.Wpf
         /// </value>
         public TitleHorizontalAlignment TitleHorizontalAlignment
         {
-            get { return (TitleHorizontalAlignment)GetValue(TitleAlignmentProperty); }
-            set { SetValue(TitleAlignmentProperty, value); }
+            get
+            {
+                return (TitleHorizontalAlignment)this.GetValue(TitleAlignmentProperty);
+            }
+
+            set
+            {
+                this.SetValue(TitleAlignmentProperty, value);
+            }
         }
 
         /// <summary>

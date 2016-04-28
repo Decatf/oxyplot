@@ -9,7 +9,6 @@
 
 namespace OxyPlot.Wpf
 {
-    using System;
     using System.Windows;
     using System.Windows.Controls;
 
@@ -23,12 +22,12 @@ namespace OxyPlot.Wpf
         /// Identifies the <see cref="Controller"/> dependency property.
         /// </summary>
         public static readonly DependencyProperty ControllerProperty =
-            DependencyProperty.Register("Controller", typeof(IPlotController), typeof(PlotView), new PropertyMetadata(null));
+            DependencyProperty.Register("Controller", typeof(IPlotController), typeof(PlotView));
 
         /// <summary>
         /// Identifies the <see cref="Model"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty ModelProperty = 
+        public static readonly DependencyProperty ModelProperty =
             DependencyProperty.Register("Model", typeof(PlotModel), typeof(PlotView), new PropertyMetadata(null, ModelChanged));
 
         /// <summary>
@@ -42,20 +41,17 @@ namespace OxyPlot.Wpf
         private PlotModel currentModel;
 
         /// <summary>
+        /// The default plot controller.
+        /// </summary>
+        private IPlotController defaultController;
+
+        /// <summary>
         /// Initializes static members of the <see cref="PlotView" /> class.
         /// </summary>
         static PlotView()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PlotView), new FrameworkPropertyMetadata(typeof(PlotView)));
             PaddingProperty.OverrideMetadata(typeof(PlotView), new FrameworkPropertyMetadata(new Thickness(8), AppearanceChanged));
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PlotView" /> class.
-        /// </summary>
-        public PlotView()
-        {
-            this.Controller = new PlotController();
         }
 
         /// <summary>
@@ -112,7 +108,7 @@ namespace OxyPlot.Wpf
         {
             get
             {
-                return this.Controller;
+                return this.Controller ?? (this.defaultController ?? (this.defaultController = new PlotController()));
             }
         }
 

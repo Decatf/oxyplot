@@ -1,7 +1,7 @@
 OxyPlot is a cross-platform plotting library for .NET
 
 - [Web page](http://oxyplot.org)  
-- [Documentation](http://oxyplot.org/documentation)
+- [Documentation](http://docs.oxyplot.org/)
 - [Announcements](http://oxyplot.org/announcements) / [atom](http://oxyplot.org/atom.xml)
 - [Discussion forum](http://discussion.oxyplot.org)
 - [Source repository](http://github.com/oxyplot/oxyplot)
@@ -13,11 +13,6 @@ OxyPlot is a cross-platform plotting library for .NET
 
 ![License](https://img.shields.io/badge/license-MIT-red.svg)
 [![Build status](https://img.shields.io/appveyor/ci/objorke/oxyplot.svg)](https://ci.appveyor.com/project/objorke/oxyplot)
-![NuGet downloads](https://img.shields.io/nuget/dt/oxyplot.core.svg)
-![Version](https://img.shields.io/nuget/v/OxyPlot.Core.svg)
-![Pre-release version](https://img.shields.io/nuget/vpre/OxyPlot.Core.svg)
-![GitHub release](https://img.shields.io/github/release/oxyplot/oxyplot.svg)
-![GitHub tag](https://img.shields.io/github/tag/oxyplot/oxyplot.svg)
 
 ![Plot](http://oxyplot.org/public/images/normal-distributions.png)
 
@@ -41,27 +36,23 @@ You can find examples in the `/Source/Examples` folder in the code repository.
 
 #### NuGet packages
 
-![OxyPlot.Core](https://img.shields.io/nuget/vpre/OxyPlot.Core.svg?label=OxyPlot.Core)  
-![OxyPlot.Wpf](https://img.shields.io/nuget/vpre/OxyPlot.Wpf.svg?label=OxyPlot.Wpf)  
-![OxyPlot.WindowsForms](https://img.shields.io/nuget/vpre/OxyPlot.WindowsForms.svg?label=OxyPlot.WindowsForms)  
-![OxyPlot.GtkSharp](https://img.shields.io/nuget/vpre/OxyPlot.GtkSharp.svg?label=OxyPlot.GtkSharp)  
-![OxyPlot.Silverlight](https://img.shields.io/nuget/vpre/OxyPlot.Silverlight.svg?label=OxyPlot.Silverlight)  
-![OxyPlot.WP8](https://img.shields.io/nuget/vpre/OxyPlot.WP8.svg?label=OxyPlot.WP8)  
-![OxyPlot.Xamarin.Android](https://img.shields.io/nuget/vpre/OxyPlot.Xamarin.Android.svg?label=OxyPlot.Xamarin.Android)  
-![OxyPlot.Xamarin.iOS](https://img.shields.io/nuget/vpre/OxyPlot.Xamarin.iOS.svg?label=OxyPlot.Xamarin.iOS)  
-![OxyPlot.Xamarin.Mac](https://img.shields.io/nuget/vpre/OxyPlot.Xamarin.Mac.svg?label=OxyPlot.Xamarin.Mac)  
-![OxyPlot.Xamarin.Forms](https://img.shields.io/nuget/vpre/OxyPlot.Xamarin.Forms.svg?label=OxyPlot.Xamarin.Forms)  
-![OxyPlot.Xwt](https://img.shields.io/nuget/vpre/OxyPlot.Xwt.svg?label=OxyPlot.Xwt)  
-![OxyPlot.OpenXML](https://img.shields.io/nuget/vpre/OxyPlot.OpenXML.svg?label=OxyPlot.OpenXML)  
-![OxyPlot.Pdf](https://img.shields.io/nuget/vpre/OxyPlot.Pdf.svg?label=OxyPlot.Pdf)  
-
-![OxyPlot.WindowsUniversal](https://img.shields.io/nuget/vpre/OxyPlot.WindowsUniversal.svg?label=OxyPlot.WindowsUniversal)  
-![OxyPlot.Mobile](https://img.shields.io/nuget/vpre/OxyPlot.Mobile.svg?label=OxyPlot.Mobile)  
-![OxyPlot](https://img.shields.io/nuget/vpre/OxyPlot.svg?label=OxyPlot)  
+Package | Targets
+--------|---------------
+[OxyPlot.Core](https://www.nuget.org/packages/OxyPlot.Core) | Portable class library
+[OxyPlot.Wpf](https://www.nuget.org/packages/OxyPlot.Wpf) | WPF (NET40, NET45)  
+[OxyPlot.WindowsForms](https://www.nuget.org/packages/OxyPlot.WindowsForms) | Windows Forms (NET40, NET45)
+[OxyPlot.Windows](https://www.nuget.org/packages/OxyPlot.Windows) | Windows 8.1 and Windows Phone 8.1
+[OxyPlot.WP8](https://www.nuget.org/packages/OxyPlot.WP8) | Windows Phone Silverlight
+[OxyPlot.Silverlight](https://www.nuget.org/packages/OxyPlot.Silverlight) | Silverlight 5 
+[OxyPlot.GtkSharp](https://www.nuget.org/packages/OxyPlot.GtkSharp) | GTK# 2 and 3 (NET40, NET45)
+[OxyPlot.Xamarin.Android](https://www.nuget.org/packages/OxyPlot.Xamarin.Android) | MonoAndroid
+[OxyPlot.Xamarin.iOS](https://www.nuget.org/packages/OxyPlot.Xamarin.iOS) | MonoTouch and iOS10
+[OxyPlot.Xamarin.Mac](https://www.nuget.org/packages/OxyPlot.Xamarin.Mac) | Mac20
+[OxyPlot.Xamarin.Forms](https://www.nuget.org/packages/OxyPlot.Xamarin.Forms) | MonoTouch, iOS10, MonoAndroid, WP8
+[OxyPlot.Xwt](https://www.nuget.org/packages/OxyPlot.Xwt) | NET40, NET45
+[OxyPlot.OpenXML](https://www.nuget.org/packages/OxyPlot.OpenXML) | NET40, NET45
+[OxyPlot.Pdf](https://www.nuget.org/packages/OxyPlot.Pdf) | PdfSharp (NET40, NET45, SL5)
 
 #### Contribute
 
-See [the documentation](http://oxyplot.org/documentation/contributions) for information about how to contribute!
-
-[![Pull request status](http://www.issuestats.com/github/oxyplot/oxyplot/badge/pr?style=flat)](http://www.issuestats.com/github/oxyplot/oxyplot/)
-[![Issues closed status](http://www.issuestats.com/github/oxyplot/oxyplot/badge/issue?style=flat)](http://www.issuestats.com/github/oxyplot/oxyplot/)
+See [Contributing](.github/CONTRIBUTING.md) for information about how to contribute!

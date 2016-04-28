@@ -48,10 +48,10 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts an <see cref="OxyColor" /> to a <see cref="Color" />.
+        /// Converts an <see cref="OxyColor" /> to a <see cref="T:Color" />.
         /// </summary>
         /// <param name="c">The color.</param>
-        /// <returns>A <see cref="Color" />.</returns>
+        /// <returns>A <see cref="T:Color" />.</returns>
         public static Color ToColor(this OxyColor c)
         {
             return new Color { A = c.A, R = c.R, G = c.G, B = c.B };
@@ -76,10 +76,10 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="Color" /> to an <see cref="OxyColor" />.
+        /// Converts a <see cref="T:Color" /> to an <see cref="T:OxyColor" />.
         /// </summary>
         /// <param name="color">The color.</param>
-        /// <returns>An <see cref="OxyColor" />.</returns>
+        /// <returns>An <see cref="T:OxyColor" />.</returns>
         public static OxyColor ToOxyColor(this Color color)
         {
             return OxyColor.FromArgb(color.A, color.R, color.G, color.B);
@@ -107,7 +107,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="Thickness" /> to an <see cref="OxyThickness" />.
+        /// Converts a <see cref="T:Thickness" /> to an <see cref="OxyThickness" />.
         /// </summary>
         /// <param name="t">The thickness.</param>
         /// <returns>An <see cref="OxyThickness" />.</returns>
@@ -117,7 +117,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="ScreenPoint" /> to a <see cref="Point" />.
+        /// Converts a <see cref="ScreenPoint" /> to a <see cref="T:Point" />.
         /// </summary>
         /// <param name="pt">The point to convert.</param>
         /// <param name="aliased">Use pixel alignment conversion if set to <c>true</c>.</param>
@@ -136,7 +136,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts an <see cref="OxyRect" /> to a <see cref="Rect" />.
+        /// Converts an <see cref="OxyRect" /> to a <see cref="T:Rect" />.
         /// </summary>
         /// <param name="r">The rectangle to convert.</param>
         /// <param name="aliased">Use pixel alignment if set to <c>true</c>.</param>
@@ -288,8 +288,27 @@ namespace OxyPlot.Windows
         {
             return new OxyTouchEventArgs
             {
-                Position = e.Position.ToScreenPoint()
+                Position = e.Position.ToScreenPoint(),
             };
+        }
+
+        /// <summary>
+        /// Converts <see cref="PointerRoutedEventArgs" /> to <see cref="OxyMouseEventArgs" /> for a touch event.
+        /// </summary>
+        /// <param name="e">The <see cref="ManipulationCompletedRoutedEventArgs" /> instance containing the event data.</param>
+        /// <param name="relativeTo">The <see cref="UIElement" /> that the event is relative to.</param>
+        /// <returns>A <see cref="OxyMouseEventArgs" /> containing the converted event arguments.</returns>
+        public static OxyTouchEventArgs ToTouchEventArgs(this PointerRoutedEventArgs e, UIElement relativeTo)
+        {
+            var point = e.GetCurrentPoint(relativeTo);
+
+            var eventArgs = new OxyTouchEventArgs
+            {
+                Position = point.Position.ToScreenPoint(),
+                ModifierKeys = e.GetModifierKeys(),
+            };
+
+            return eventArgs;
         }
 
         /// <summary>
@@ -494,7 +513,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="Point" /> to a <see cref="ScreenPoint" />.
+        /// Converts a <see cref="T:Point" /> to a <see cref="ScreenPoint" />.
         /// </summary>
         /// <param name="pt">The point to convert.</param>
         /// <returns>A <see cref="ScreenPoint" />.</returns>
@@ -504,7 +523,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="Point" /> to a <see cref="ScreenVector" />.
+        /// Converts a <see cref="T:Point" /> to a <see cref="ScreenVector" />.
         /// </summary>
         /// <param name="pt">The vector to convert.</param>
         /// <returns>A <see cref="ScreenVector" />.</returns>
@@ -514,7 +533,7 @@ namespace OxyPlot.Windows
         }
 
         /// <summary>
-        /// Converts a <see cref="Point" /> array to a <see cref="ScreenPoint" /> array.
+        /// Converts a <see cref="T:Point" /> array to a <see cref="ScreenPoint" /> array.
         /// </summary>
         /// <param name="points">The points.</param>
         /// <returns>A <see cref="ScreenPoint" /> array.</returns>

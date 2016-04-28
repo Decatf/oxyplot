@@ -203,6 +203,11 @@ namespace OxyPlot
         private int currentColorIndex;
 
         /// <summary>
+        /// Flags if the data has been updated.
+        /// </summary>
+        private bool isDataUpdated;
+
+        /// <summary>
         /// The last update exception.
         /// </summary>
         /// <value>The exception or <c>null</c> if there was no exceptions during the last update.</value>
@@ -256,6 +261,7 @@ namespace OxyPlot
             this.LegendPadding = 8;
             this.LegendColumnSpacing = 8;
             this.LegendItemSpacing = 24;
+            this.LegendLineSpacing = 0;
             this.LegendMargin = 8;
 
             this.LegendBackground = OxyColors.Undefined;
@@ -266,6 +272,7 @@ namespace OxyPlot
             this.LegendTitleColor = OxyColors.Automatic;
 
             this.LegendMaxWidth = double.NaN;
+            this.LegendMaxHeight = double.NaN;
             this.LegendPlacement = LegendPlacement.Inside;
             this.LegendPosition = LegendPosition.RightTop;
             this.LegendOrientation = LegendOrientation.Vertical;
@@ -410,9 +417,9 @@ namespace OxyPlot
         public double LegendBorderThickness { get; set; }
 
         /// <summary>
-        /// Gets or sets the legend column spacing.
+        /// Gets or sets the spacing between columns of legend items (only for vertical orientation).
         /// </summary>
-        /// <value>The legend column spacing.</value>
+        /// <value>The spacing in device independent units.</value>
         public double LegendColumnSpacing { get; set; }
 
         /// <summary>
@@ -453,10 +460,16 @@ namespace OxyPlot
         public LegendItemOrder LegendItemOrder { get; set; }
 
         /// <summary>
-        /// Gets or sets the legend spacing.
+        /// Gets or sets the horizontal spacing between legend items when the orientation is horizontal.
         /// </summary>
-        /// <value>The legend spacing.</value>
+        /// <value>The horizontal distance between items in device independent units.</value>
         public double LegendItemSpacing { get; set; }
+
+        /// <summary>
+        /// Gets or sets the vertical spacing between legend items.
+        /// </summary>
+        /// <value>The spacing in device independent units.</value>
+        public double LegendLineSpacing { get; set; }
 
         /// <summary>
         /// Gets or sets the legend margin.
@@ -469,6 +482,12 @@ namespace OxyPlot
         /// </summary>
         /// <value>The max width of the legend.</value>
         public double LegendMaxWidth { get; set; }
+
+        /// <summary>
+        /// Gets or sets the max height of the legend.
+        /// </summary>
+        /// <value>The max height of the legend.</value>
+        public double LegendMaxHeight { get; set; }
 
         /// <summary>
         /// Gets or sets the legend orientation.
@@ -1023,12 +1042,14 @@ namespace OxyPlot
                     var visibleSeries = this.Series.Where(s => s.IsVisible).ToArray();
 
                     // Update data of the series
-                    if (updateData)
+                    if (updateData || !this.isDataUpdated)
                     {
                         foreach (var s in visibleSeries)
                         {
                             s.UpdateData();
                         }
+
+                        this.isDataUpdated = true;
                     }
 
                     // Updates axes with information from the series
@@ -1056,7 +1077,7 @@ namespace OxyPlot
                     this.ResetDefaultColor();
                     foreach (var s in visibleSeries)
                     {
-                        s.SetDefaultValues(this);
+                        s.SetDefaultValues();
                     }
 
                     this.OnUpdated();
@@ -1131,7 +1152,10 @@ namespace OxyPlot
         /// Raises the TrackerChanged event.
         /// </summary>
         /// <param name="result">The result.</param>
-        protected internal virtual void OnTrackerChanged(TrackerHitResult result)
+        /// <remarks>
+        /// This method is public so custom implementations of tracker manipulators can invoke this method.
+        /// </remarks>
+        public void RaiseTrackerChanged(TrackerHitResult result)
         {
             var handler = this.TrackerChanged;
             if (handler != null)
@@ -1139,6 +1163,15 @@ namespace OxyPlot
                 var args = new TrackerEventArgs { HitResult = result };
                 handler(this, args);
             }
+        }
+
+        /// <summary>
+        /// Raises the TrackerChanged event.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        protected internal virtual void OnTrackerChanged(TrackerHitResult result)
+        {
+            this.RaiseTrackerChanged(result);
         }
 
         /// <summary>
