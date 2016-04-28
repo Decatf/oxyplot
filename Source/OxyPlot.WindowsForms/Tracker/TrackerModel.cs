@@ -154,13 +154,13 @@ namespace OxyPlot.WindowsForms.Tracker
             {
                 polyPoints = new ScreenPoint[]
                 {
-                    
+
                     new ScreenPoint(
-                        (float) textBoxSize.Right, 
+                        (float) textBoxSize.Right,
                         (float) (textBoxSize.Top + (textSize.Height/2.0f) - textboxOffset)),
                     trackerPosition,
                     new ScreenPoint(
-                        (float) textBoxSize.Right, 
+                        (float) textBoxSize.Right,
                         (float) (textBoxSize.Top + (textSize.Height/2.0f) + textboxOffset)),
                 };
 
@@ -242,9 +242,9 @@ namespace OxyPlot.WindowsForms.Tracker
             double textboxOffset = this.TextOffset < 0 ? 0 : this.TextOffset;
             double textPadding = this.TextPadding < 0 ? 0 : this.TextPadding;
 
-            OxySize textArea = new OxySize(textSize.Width, textSize.Height);
-            textArea.Width += (float)(2.0 * textPadding);
-            textArea.Height += (float)(2.0 * textPadding);
+            OxySize textArea = new OxySize(
+                textSize.Width + (float)(2.0 * textPadding),
+                textSize.Height + (float)(2.0 * textPadding));
             textSize = textArea;
 
             OxyRect trackerBounds = this.TrackerBounds;
@@ -252,40 +252,41 @@ namespace OxyPlot.WindowsForms.Tracker
             OxyRect textboxBounds = this.TrackerBounds;
 
             // default text box position is top and centered horizontally
-            OxyRect textBox = new OxyRect(
-                Math.Round(trackerPosition.X - (textSize.Width / 2)),
-                Math.Round(trackerPosition.Y - textSize.Height - textboxOffset),
-                Math.Round(textSize.Width),
-                Math.Round(textSize.Height));
+            double left = Math.Round(trackerPosition.X - (textSize.Width / 2));
+            double top = Math.Round(trackerPosition.Y - textSize.Height - textboxOffset);
 
             // determine textbox orientation
             int orientation = 0; // top
             if (textboxBounds.Width > 0)
             {
-                if (textBox.Left + textSize.Width > textboxBounds.Right)
+                if (left + textSize.Width > textboxBounds.Right)
                 {
                     orientation = 1; // left
-                    textBox.Left = trackerPosition.X - textSize.Width - textboxOffset;
-                    textBox.Top = trackerPosition.Y - (textSize.Height / 2);
+                    left = trackerPosition.X - textSize.Width - textboxOffset;
+                    top = trackerPosition.Y - (textSize.Height / 2);
                 }
 
-                if (textBox.Left < textboxBounds.Left)
+                if (left < textboxBounds.Left)
                 {
                     orientation = 2; // right
-                    textBox.Left = trackerPosition.X + textboxOffset;
-                    textBox.Top = trackerPosition.Y - (textSize.Height / 2);
+                    left = trackerPosition.X + textboxOffset;
+                    top = trackerPosition.Y - (textSize.Height / 2);
                 }
             }
 
             if (textboxBounds.Height > 0)
             {
-                if (textBox.Top < textboxBounds.Top)
+                if (top < textboxBounds.Top)
                 {
-                    textBox.Left = trackerPosition.X - (textSize.Width / 2);
-                    textBox.Top = trackerPosition.Y + textboxOffset;
+                    left = trackerPosition.X - (textSize.Width / 2);
+                    top = trackerPosition.Y + textboxOffset;
                     orientation = 3; // bottom
                 }
             }
+
+            OxyRect textBox = new OxyRect(left, top,
+                Math.Round(textSize.Width),
+                Math.Round(textSize.Height));
 
             // get the text box points
             ScreenPoint[] borderPoints;
