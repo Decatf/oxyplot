@@ -35,12 +35,12 @@ namespace OxyPlot.Axes
         /// <summary>
         /// The maximum day value
         /// </summary>
-        private static readonly double MaxDayValue = (DateTime.MaxValue - TimeOrigin).TotalDays;
+        private static readonly double MaxDayValue = (DateTime.MaxValue - TimeOrigin).Ticks;
 
         /// <summary>
         /// The minimum day value
         /// </summary>
-        private static readonly double MinDayValue = (DateTime.MinValue - TimeOrigin).TotalDays;
+        private static readonly double MinDayValue = (DateTime.MinValue - TimeOrigin).Ticks;
 
         /// <summary>
         /// The actual interval type.
@@ -135,7 +135,7 @@ namespace OxyPlot.Axes
                 return new DateTime();
             }
 
-            return TimeOrigin.AddDays(value - 1);
+            return TimeOrigin.AddTicks((long)value - 1);
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace OxyPlot.Axes
         public static double ToDouble(DateTime value)
         {
             var span = value - TimeOrigin;
-            return span.TotalDays + 1;
+            return span.Ticks + 1;
         }
 
         /// <summary>
@@ -295,10 +295,10 @@ namespace OxyPlot.Axes
         /// <returns>The calculate actual interval.</returns>
         protected override double CalculateActualInterval(double availableSize, double maxIntervalSize)
         {
-            const double Year = 365.25;
-            const double Month = 30.5;
-            const double Week = 7;
-            const double Day = 1.0;
+            const double Year = 365.25 * TimeSpan.TicksPerDay;
+            const double Month = 30.5 * TimeSpan.TicksPerDay;
+            const double Week = 7 * TimeSpan.TicksPerDay;
+            const double Day = 1.0 * TimeSpan.TicksPerDay;
             const double Hour = Day / 24;
             const double Minute = Hour / 60;
             const double Second = Minute / 60;
@@ -339,27 +339,27 @@ namespace OxyPlot.Axes
             if (this.IntervalType == DateTimeIntervalType.Auto)
             {
                 this.actualIntervalType = DateTimeIntervalType.Seconds;
-                if (interval >= 1.0 / 24 / 60)
+                if (interval >= Minute)
                 {
                     this.actualIntervalType = DateTimeIntervalType.Minutes;
                 }
 
-                if (interval >= 1.0 / 24)
+                if (interval >= Hour)
                 {
                     this.actualIntervalType = DateTimeIntervalType.Hours;
                 }
 
-                if (interval >= 1)
+                if (interval >= Day)
                 {
                     this.actualIntervalType = DateTimeIntervalType.Days;
                 }
 
-                if (interval >= 30)
+                if (interval >= 30 * Day)
                 {
                     this.actualIntervalType = DateTimeIntervalType.Months;
                 }
 
-                if (range >= 365.25)
+                if (range >= Year)
                 {
                     this.actualIntervalType = DateTimeIntervalType.Years;
                 }
@@ -367,13 +367,13 @@ namespace OxyPlot.Axes
 
             if (this.actualIntervalType == DateTimeIntervalType.Months)
             {
-                double monthsRange = range / 30.5;
+                double monthsRange = range / Month;
                 interval = this.CalculateActualInterval(availableSize, maxIntervalSize, monthsRange);
             }
 
             if (this.actualIntervalType == DateTimeIntervalType.Years)
             {
-                double yearsRange = range / 365.25;
+                double yearsRange = range / Year;
                 interval = this.CalculateActualInterval(availableSize, maxIntervalSize, yearsRange);
             }
 

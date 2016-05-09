@@ -122,6 +122,12 @@ namespace ExampleLibrary
                                  ItemsSource = items
                              };
 
+            timeSpanAxis1.Minimum = items[0].X;
+            timeSpanAxis1.Maximum = items[29].X;
+
+            linearAxis1.Minimum = items.Take(30).Select(x => x.Low).Min();
+            linearAxis1.Maximum = items.Take(30).Select(x => x.High).Max();
+
             pm.Series.Add(series);
 
             timeSpanAxis1.AxisChanged += (sender, e) => AdjustYExtent(series, timeSpanAxis1, linearAxis1);
@@ -135,13 +141,20 @@ namespace ExampleLibrary
         [Example("Simple CandleStickSeries example")]
         public static PlotModel SimpleExample()
         {
-            var startTimeValue = DateTimeAxis.ToDouble(new DateTime(2016, 1, 1));
+            var startTime = new DateTime(2016, 1, 1);
+            var x0 = DateTimeAxis.ToDouble(startTime);
+            var x1 = DateTimeAxis.ToDouble(startTime.AddDays(1));
             var pm = new PlotModel { Title = "Simple CandleStickSeries example" };
-            pm.Axes.Add(new DateTimeAxis { Position = AxisPosition.Bottom, Minimum = startTimeValue - 7, Maximum = startTimeValue + 7 });
+            pm.Axes.Add(new DateTimeAxis
+            {
+                Position = AxisPosition.Bottom,
+                Minimum = DateTimeAxis.ToDouble(startTime.AddDays(-7)),
+                Maximum = DateTimeAxis.ToDouble(startTime.AddDays(7)),
+            });
             pm.Axes.Add(new LinearAxis { Position = AxisPosition.Left });
             var series = new CandleStickSeries();
-            series.Items.Add(new HighLowItem(startTimeValue, 100, 80, 92, 94));
-            series.Items.Add(new HighLowItem(startTimeValue + 1, 102, 77, 94, 93));
+            series.Items.Add(new HighLowItem(x0, 100, 80, 92, 94));
+            series.Items.Add(new HighLowItem(x1, 102, 77, 94, 93));
             pm.Series.Add(series);
             return pm;
         }

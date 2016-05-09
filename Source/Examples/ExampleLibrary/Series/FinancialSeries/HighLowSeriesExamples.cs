@@ -42,15 +42,14 @@ namespace ExampleLibrary
         public static PlotModel HighLowSeriesDateTimeAxis()
         {
             var m = new PlotModel();
-            var x0 = DateTimeAxis.ToDouble(new DateTime(2013, 05, 04));
+            var t0 = new DateTime(2013, 05, 04);
+            var t1 = t0.AddDays(1);
             var a = new DateTimeAxis
             {
                 Position = AxisPosition.Bottom,
-                Minimum = x0 - 0.9,
-                Maximum = x0 + 1.9,
+                Minimum = DateTimeAxis.ToDouble(t0.AddDays(-0.9)),
+                Maximum = DateTimeAxis.ToDouble(t0.AddDays(1.9)),
                 IntervalType = DateTimeIntervalType.Days,
-                MajorStep = 1,
-                MinorStep = 1,
                 StringFormat = "yyyy-MM-dd"
             };
             m.Axes.Add(a);
@@ -60,8 +59,10 @@ namespace ExampleLibrary
                     "X: {1:yyyy-MM-dd}\nHigh: {2:0.00}\nLow: {3:0.00}\nOpen: {4:0.00}\nClose: {5:0.00}"
             };
 
+            var x0 = DateTimeAxis.ToDouble(t0);
+            var x1 = DateTimeAxis.ToDouble(t1);
             s.Items.Add(new HighLowItem(x0, 14, 10, 13, 12.4));
-            s.Items.Add(new HighLowItem(x0 + 1, 17, 8, 12.4, 16.3));
+            s.Items.Add(new HighLowItem(x1, 17, 8, 12.4, 16.3));
             m.Series.Add(s);
 
             return m;

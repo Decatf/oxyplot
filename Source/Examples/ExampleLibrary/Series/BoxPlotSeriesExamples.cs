@@ -169,23 +169,26 @@ namespace ExampleLibrary
         public static PlotModel BoxPlotSeries_DateTimeAxis()
         {
             var m = new PlotModel();
-            var x0 = DateTimeAxis.ToDouble(new DateTime(2013, 05, 04));
+            var t0 = new DateTime(2013, 05, 04);
+            var t1 = t0.AddDays(1);
             m.Axes.Add(new DateTimeAxis
             {
                 Position = AxisPosition.Bottom,
-                Minimum = x0 - 0.9,
-                Maximum = x0 + 1.9,
+                Minimum = DateTimeAxis.ToDouble(t0.AddDays(-0.9)),
+                Maximum = DateTimeAxis.ToDouble(t0.AddDays(1.9)),
                 IntervalType = DateTimeIntervalType.Days,
-                MajorStep = 1,
-                MinorStep = 1,
                 StringFormat = "yyyy-MM-dd"
             });
             var boxPlotSeries = new BoxPlotSeries
             {
+                BoxWidth = TimeSpan.TicksPerDay * 0.3,
                 TrackerFormatString = "X: {1:yyyy-MM-dd}\nUpper Whisker: {2:0.00}\nThird Quartil: {3:0.00}\nMedian: {4:0.00}\nFirst Quartil: {5:0.00}\nLower Whisker: {6:0.00}\nMean: {7:0.00}"
             };
+
+            var x0 = DateTimeAxis.ToDouble(t0);
+            var x1 = DateTimeAxis.ToDouble(t1);
             boxPlotSeries.Items.Add(new BoxPlotItem(x0, 10, 14, 16, 20, 22) { Mean = 17, Outliers = new[] { 23.5 }});
-            boxPlotSeries.Items.Add(new BoxPlotItem(x0 + 1, 11, 13, 14, 15, 18) { Outliers = new[] { 23.4 }});
+            boxPlotSeries.Items.Add(new BoxPlotItem(x1, 11, 13, 14, 15, 18) { Outliers = new[] { 23.4 }});
             m.Series.Add(boxPlotSeries);
             return m;
         }
