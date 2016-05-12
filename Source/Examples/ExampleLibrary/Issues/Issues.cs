@@ -1528,17 +1528,61 @@ namespace ExampleLibrary
             return model;
         }
 
-        /* NEW ISSUE TEMPLATE
-          [Example("#123: Issue Description")]
-          public static PlotModel IssueDescription()
-          {
-              var plotModel1 = new PlotModel
-              {
-                  Title = "",
-              };
+        [Example("#72: Smooth")]
+        public static PlotModel Smooth()
+        {
+            var model = new PlotModel { Title = "LineSeries with Smooth = true (zoomed in)", LegendSymbolLength = 24 };
 
-              return plotModel1;
-          }
-          */
+            var s1 = new LineSeries();
+            s1.Points.Add(new DataPoint(0, 0));
+            s1.Points.Add(new DataPoint(10, 2));
+            s1.Points.Add(new DataPoint(40, 1));
+            s1.Smooth = true;
+            model.Series.Add(s1);
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Bottom, Minimum = 10.066564180257437, Maximum = 10.081628088306001 });
+            model.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Minimum = 2.0013430243084067, Maximum = 2.00209808854281 });
+            return model;
+        }
+
+        [Example("#880: Too much padding")]
+        public static PlotModel TooMuchPadding()
+        {
+            return new PlotModel { Title = "Too much padding", Padding = new OxyThickness(0, 0, 0, 10000) };
+        }
+
+        [Example("#880: Too much padding with legend outside")]
+        public static PlotModel TooMuchPaddingWithLegend()
+        {
+            var model = new PlotModel
+            {
+                Title = "Too much padding with legend outside",
+                LegendPlacement = LegendPlacement.Outside,
+                Padding = new OxyThickness(500)
+            };
+            model.Series.Add(new LineSeries { Title = "Series 1" });
+            model.Series.Add(new LineSeries { Title = "Series 2" });
+            return model;
+        }
+
+        [Example("#880: Too much title padding")]
+        public static PlotModel TooMuchTitlePadding()
+        {
+            var model = new PlotModel { Title = "Too much title padding", TitlePadding = 10000 };
+            return model;
+        }
+
+
+        /* NEW ISSUE TEMPLATE
+           [Example("#123: Issue Description")]
+           public static PlotModel IssueDescription()
+           {
+               var plotModel1 = new PlotModel
+               {
+                   Title = "",
+               };
+
+               return plotModel1;
+           }
+           */
     }
 }
