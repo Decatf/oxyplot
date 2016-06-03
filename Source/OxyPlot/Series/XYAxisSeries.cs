@@ -974,6 +974,10 @@ namespace OxyPlot.Series
             {
                 lastIndex--;
             }
+            else if (lastIndex < 0)
+            {
+                lastIndex++;
+            }
 
             return lastIndex;
         }
