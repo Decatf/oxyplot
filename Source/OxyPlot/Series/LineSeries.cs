@@ -334,6 +334,22 @@ namespace OxyPlot.Series
             var clippingRect = this.GetClippingRect();
             rc.SetClip(clippingRect);
 
+            if (this.IsXMonotonic)
+            {
+                var leftDataValue = this.XAxis.InverseTransform(clippingRect.Left);
+                var rightDataValue = this.XAxis.InverseTransform(clippingRect.Right);
+
+                var startIndex = this.FindWindowStartIndex<DataPoint>(actualPoints, p => p.X, leftDataValue, 0);
+                startIndex = Math.Max(0, startIndex);
+                var endIndex = this.FindWindowEndIndex<DataPoint>(actualPoints, p => p.X, rightDataValue, startIndex);
+                endIndex = endIndex == -1 ? actualPoints.Count - 1 : endIndex;
+
+                if (startIndex >= 0 && endIndex < actualPoints.Count)
+                {
+                    actualPoints = actualPoints.GetRange(startIndex, endIndex - startIndex + 1);
+                }
+            }
+
             this.RenderPoints(rc, clippingRect, actualPoints);
 
             if (this.LabelFormatString != null)
