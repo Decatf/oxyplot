@@ -244,5 +244,195 @@ namespace OxyPlot.Tests.Series
             index = series.FindWindowStartIndex(points, x => x.X, targetX, 0);
             Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
         }
+
+        [Test]
+        public void FindWindowEndIndex()
+        {
+            LineSeries series = new LineSeries();
+
+            List<DataPoint> points = new List<DataPoint>();
+            var r = new Random(12);
+            var y = r.Next(10, 30);
+            for (int x = 0; x <= 100; x += 10)
+            {
+                points.Add(new DataPoint(x, y));
+                y += r.Next(-5, 5);
+            }
+
+            double targetX;
+            int expectedIndex;
+            int index;
+
+            targetX = -100;
+            expectedIndex = 0;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 0;
+            expectedIndex = 0;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 50;
+            expectedIndex = 5;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 100;
+            expectedIndex = 10;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 200;
+            expectedIndex = -1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+        }
+
+        [Test]
+        public void FindWindowEndIndex_EmptyPoints()
+        {
+            LineSeries series = new LineSeries();
+
+            List<DataPoint> points = new List<DataPoint>();
+            var r = new Random(12);
+            var y = r.Next(10, 30);
+            for (int x = 0; x <= 100; x += 10)
+            {
+                points.Add(new DataPoint(x, y));
+                y += r.Next(-5, 5);
+            }
+
+            points[3] = DataPoint.Undefined;
+            points[6] = DataPoint.Undefined;
+            points[8] = DataPoint.Undefined;
+
+            double targetX;
+            int expectedIndex;
+            int index;
+
+            targetX = -100;
+            expectedIndex = -1;
+            index = series.FindWindowStartIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 0;
+            expectedIndex = 0;
+            index = series.FindWindowStartIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 35;
+            expectedIndex = 4;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 60;
+            expectedIndex = 7;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 61;
+            expectedIndex = 7;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 70;
+            expectedIndex = 7;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 80;
+            expectedIndex = 9;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 90;
+            expectedIndex = 9;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 100;
+            expectedIndex = 10;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+        }
+
+        [Test]
+        public void FindWindowEndIndex_UndefinedStart()
+        {
+            LineSeries series = new LineSeries();
+
+            List<DataPoint> points = new List<DataPoint>();
+            var r = new Random(12);
+            var y = r.Next(10, 30);
+            for (int x = 0; x <= 100; x += 10)
+            {
+                points.Add(new DataPoint(x, y));
+                y += r.Next(-5, 5);
+            }
+
+            points[0] = DataPoint.Undefined;
+
+            double targetX;
+            int expectedIndex;
+            int index;
+
+            targetX = -100;
+            expectedIndex = 1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 0;
+            expectedIndex = 1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 10;
+            expectedIndex = 1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+        }
+
+        [Test]
+        public void FindWindowEndIndex_UndefinedEnd()
+        {
+            LineSeries series = new LineSeries();
+
+            List<DataPoint> points = new List<DataPoint>();
+            var r = new Random(12);
+            var y = r.Next(10, 30);
+            for (int x = 0; x <= 100; x += 10)
+            {
+                points.Add(new DataPoint(x, y));
+                y += r.Next(-5, 5);
+            }
+
+            points[9] = DataPoint.Undefined;
+            points[10] = DataPoint.Undefined;
+
+            double targetX;
+            int expectedIndex;
+            int index;
+
+            targetX = 80;
+            expectedIndex = 8;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 90;
+            expectedIndex = -1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 100;
+            expectedIndex = -1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+
+            targetX = 200;
+            expectedIndex = -1;
+            index = series.FindWindowEndIndex(points, x => x.X, targetX, 0);
+            Assert.AreEqual(expectedIndex, index, "TargetX {0} Expected {1} actual {2}", targetX, expectedIndex, index);
+        }
     }
 }
