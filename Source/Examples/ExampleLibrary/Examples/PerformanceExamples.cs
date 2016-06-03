@@ -302,6 +302,88 @@ namespace ExampleLibrary
             return IntOverflow(100000);
         }
 
+
+        [Example("Monotonic series, 5 LineSeries with 1M points")]
+        public static PlotModel MonotonicLineSeries()
+        {
+            int n = 1000000;
+            var model = new PlotModel { Title = "Monotonic series, 5 LineSeries with 1M points", Subtitle = "n = " + n };
+            IList<HighLowItem> bars = new List<HighLowItem>();
+
+            for (int i = 0; i < 5; i++)
+            {
+                bars = HighLowItemGenerator.MRProcess(n).ToList();
+                var s1 = new LineSeries
+                {
+                    ItemsSource = bars,
+                    DataFieldX = "X",
+                    DataFieldY = "Close",
+                };
+
+                model.Series.Add(s1);
+            }
+
+            var series = model.Series.Last() as LineSeries;
+            var xmin = bars.ElementAt(100).X;
+            var xmax = bars.ElementAt(1000).X;
+
+            var xAxis = new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                Minimum = xmin,
+                Maximum = xmax
+            };
+            model.Axes.Add(xAxis);
+
+            return model;
+        }
+
+        [Example("Monotonic series, 1M points with many undefined points")]
+        public static PlotModel MonotonicLineSeriesUndefinedPoints()
+        {
+            int n = 1000000;
+            var model = new PlotModel { Title = "Monotonic series, 5 LineSeries with 1M points", Subtitle = "n = " + n };
+
+            var bars = HighLowItemGenerator.MRProcess(n).ToList();
+            var random = new Random(13);
+
+            var xmin = double.MaxValue;
+            var xmax = double.MinValue;
+
+            for (int i = 0; i < bars.Count; i++)
+            {
+                if (i <= 100 && i <= 5000)
+                {
+                    xmin = Math.Min(bars[i].X, xmin);
+                    xmax = Math.Max(bars[i].X, xmax);
+                }
+
+                if (random.NextDouble() < 0.75)
+                {
+                    bars[i].X = double.NaN;
+                }
+            }
+
+            var s1 = new LineSeries
+            {
+                ItemsSource = bars,
+                DataFieldX = "X",
+                DataFieldY = "Close",
+            };
+
+            model.Series.Add(s1);
+
+            var xAxis = new LinearAxis
+            {
+                Position = AxisPosition.Bottom,
+                Minimum = xmin,
+                Maximum = xmax
+            };
+            model.Axes.Add(xAxis);
+
+            return model;
+        }
+
         private static PlotModel IntOverflow(int n)
         {
             var model = new PlotModel { Title = "int overflow", Subtitle = "n = " + n };
