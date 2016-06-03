@@ -792,7 +792,7 @@ namespace OxyPlot.Series
         /// <returns>
         /// index of x with max(x) &lt;= target x or -1 if cannot find
         /// </returns>
-        protected int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
+        public int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
         {
             int lastguess = 0;
             int start = 0;
