@@ -101,7 +101,14 @@ namespace OxyPlot.Series
 
             if (result == null)
             {
-                result = this.GetNearestPointInternal(this.ActualPoints, point);
+                if (this.IsXMonotonic)
+                {
+                    result = this.GetNearestInterpolatedPointMonotonicInternal(this.ActualPoints, point);
+                }
+                else
+                {
+                    result = this.GetNearestPointInternal(this.ActualPoints, point);
+                }
             }
 
             if (result != null)

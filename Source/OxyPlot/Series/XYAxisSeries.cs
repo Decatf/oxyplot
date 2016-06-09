@@ -235,7 +235,18 @@ namespace OxyPlot.Series
         /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
         protected TrackerHitResult GetNearestInterpolatedPointInternal(List<DataPoint> points, ScreenPoint point)
         {
-            return this.GetNearestInterpolatedPointInternal(points, 0, point);
+            TrackerHitResult result;
+
+            if (this.IsXMonotonic)
+            {
+                result = this.GetNearestInterpolatedPointMonotonicInternal(points, point);
+            }
+            else
+            {
+                result = this.GetNearestInterpolatedPointInternal(points, 0, point);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -318,7 +329,19 @@ namespace OxyPlot.Series
         /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
         protected TrackerHitResult GetNearestPointInternal(IEnumerable<DataPoint> points, ScreenPoint point)
         {
-            return this.GetNearestPointInternal(points, 0, point);
+            TrackerHitResult result;
+
+
+            if (this.IsXMonotonic)
+            {
+                result = this.GetNearestPointMonotonicInternal(points, point);
+            }
+            else
+            {
+                result = this.GetNearestPointInternal(points, 0, point);
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -373,6 +396,180 @@ namespace OxyPlot.Series
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets the nearest point in a data point series this monotonic on the x-axis.
+        /// </summary>
+        /// <param name="points">The points (data coordinates).</param>
+        /// <param name="point">The point (screen coordinates).</param>
+        /// <returns>A <see cref="TrackerHitResult" /> if a point was found, <c>null</c> otherwise.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestPointMonotonicInternal(IEnumerable<DataPoint> points, ScreenPoint point)
+        {
+            var xy = this.InverseTransform(point);
+            var targetX = xy.X;
+
+            // Find nearest point on x-axis
+            int startIdx = this.FindWindowStartIndex(points, p => p.x, targetX, this.WindowStartIndex);
+            startIdx = Math.Max(0, startIdx);
+            var p1 = points.ElementAt(startIdx);
+            var sp1 = this.Transform(p1);
+
+            var spn = sp1;
+            var pointIdx = startIdx;
+
+            var nextPointIdx = this.FindWindowEndIndex(points, p => p.x, targetX, startIdx);
+
+            if (nextPointIdx > -1)
+            {
+                var p2 = points.ElementAt(nextPointIdx);
+                var sp2 = this.Transform(p2);
+
+                if (double.IsNaN(sp1.X) || (point - sp2).Length < (point - sp1).Length)
+                {
+                    spn = sp2;
+                    pointIdx = nextPointIdx;
+                }
+            }
+
+            // Find nearest point based on (xy) euclidean distance
+            var dist = spn.DistanceTo(point);
+            var minPoint = this.XAxis.InverseTransform(spn.X - dist);
+            var maxPoint = this.XAxis.InverseTransform(spn.X + dist);
+
+            startIdx = this.FindWindowStartIndex(points, p => p.x, minPoint, 0);
+            startIdx = Math.Max(0, startIdx);
+
+            var endIdx = this.FindWindowEndIndex(points, p => p.x, maxPoint, startIdx);
+            endIdx = Math.Min(points.Count() - 1, endIdx);
+            var minDist = double.MaxValue;
+
+            for (int i = startIdx; i <= endIdx; i++)
+            {
+                var currentPoint = points.ElementAt(i);
+                var sp = this.Transform(currentPoint);
+
+                if (!this.IsValidPoint(currentPoint))
+                {
+                    continue;
+                }
+
+                var dist2 = sp.DistanceToSquared(point);
+
+                if (dist2 < minDist)
+                {
+                    spn = sp;
+                    pointIdx = i;
+                    minDist = dist2;
+                }
+            }
+
+            var dpn = this.InverseTransform(spn);
+            var item = this.GetItem(pointIdx);
+
+            return new TrackerHitResult
+            {
+                Series = this,
+                DataPoint = dpn,
+                Position = spn,
+                Item = item,
+                Index = pointIdx
+            };
+        }
+
+        /// <summary>
+        /// Gets the nearest point in a data point series this monotonic on the x-axis.
+        /// </summary>
+        /// <param name="points">The points (data coordinates).</param>
+        /// <param name="point">The point (screen coordinates).</param>
+        /// <returns>A <see cref="TrackerHitResult" /> if a point was found, <c>null</c> otherwise.</returns>
+        /// <remarks>The Text property of the result will not be set, since the formatting depends on the various series.</remarks>
+        protected TrackerHitResult GetNearestInterpolatedPointMonotonicInternal(IList<DataPoint> points, ScreenPoint point)
+        {
+            var xy = this.InverseTransform(point);
+            var targetX = xy.X;
+
+            // Find nearest point on x-axis
+            int startIdx = this.FindWindowStartIndex(points, p => p.x, targetX, this.WindowStartIndex);
+            startIdx = Math.Max(0, startIdx);
+            var p1 = points[startIdx];
+            var sp1 = this.Transform(p1);
+
+            var spn = sp1;
+            double pointIdx = startIdx;
+            var dpn = this.InverseTransform(spn);
+
+            var nextPointIdx = this.FindWindowEndIndex(points, p => p.x, targetX, startIdx);
+
+            if (nextPointIdx > -1)
+            {
+                var p2 = points[nextPointIdx];
+                var sp2 = this.Transform(p2);
+
+                if (this.IsValidPoint(p2) && (point - sp2).Length < (point - sp1).Length)
+                {
+                    spn = sp2;
+                    pointIdx = nextPointIdx;
+                    dpn = this.InverseTransform(spn);
+                }
+            }
+
+            // Find nearest point based on (xy) euclidean distance
+            var dist = spn.DistanceTo(point);
+            var minPoint = this.XAxis.InverseTransform(spn.X - dist);
+            var maxPoint = this.XAxis.InverseTransform(spn.X + dist);
+
+            startIdx = this.FindWindowStartIndex(points, p => p.x, minPoint, 0);
+            startIdx = Math.Max(0, startIdx);
+            var endIdx = this.FindWindowEndIndex(points, p => p.x, maxPoint, startIdx);
+            endIdx = Math.Min(points.Count - 1, endIdx);
+            var minimumDistance = double.MaxValue;
+
+            for (int i = startIdx; i <= endIdx; i++)
+            {
+                var pn1 = points[i];
+                var pn2 = points[i + 1];
+
+                if (!this.IsValidPoint(pn1) || !this.IsValidPoint(pn2))
+                {
+                    continue;
+                }
+
+                var spn1 = this.Transform(pn1);
+                var spn2 = this.Transform(pn2);
+
+                var spl = ScreenPointHelper.FindPointOnLine(point, spn1, spn2);
+
+                if (ScreenPoint.IsUndefined(spl))
+                {
+                    // P1 && P2 coincident
+                    continue;
+                }
+
+                double l2 = (point - spl).LengthSquared;
+
+                if (l2 < minimumDistance)
+                {
+                    double segmentLength = (spn2 - spn1).Length;
+                    double u = segmentLength > 0 ? (spl - spn1).Length / segmentLength : 0;
+                    dpn = this.InverseTransform(spl);
+                    spn = spl;
+                    minimumDistance = l2;
+                    pointIdx = i + u;
+                }
+            }
+
+            var item = this.GetItem((int)Math.Round(pointIdx));
+
+            return new TrackerHitResult
+            {
+                Series = this,
+                DataPoint = dpn,
+                Position = spn,
+                Item = item,
+                Index = pointIdx,
+            };
         }
 
         /// <summary>
