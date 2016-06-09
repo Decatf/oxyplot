@@ -792,12 +792,32 @@ namespace OxyPlot.Series
         /// <returns>
         /// index of x with max(x) &lt;= target x or -1 if cannot find
         /// </returns>
-        public int FindWindowStartIndex<T>(IList<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
+        public int FindWindowStartIndex<T>(IEnumerable<T> items, Func<T, double> xgetter, double targetX, int initialGuess)
         {
-            int lastguess = 0;
+            int lastguess = -1;
             int start = 0;
-            int end = items.Count - 1;
-            int curGuess = initialGuess;
+            int end = items.Count() - 1;
+
+            while (end >= 0 && double.IsNaN(xgetter(items.ElementAt(end))))
+            {
+                end--;
+            }
+
+            start = Math.Min(start, end);
+
+            while (start <= end && double.IsNaN(xgetter(items.ElementAt(start))))
+            {
+                start++;
+            }
+
+            int validStart = start;
+            int validEnd = end;
+            int curGuess = Math.Max(initialGuess, start);
+
+            if (curGuess > end)
+            {
+                return -1;
+            }
 
             while (start <= end)
             {
@@ -805,44 +825,57 @@ namespace OxyPlot.Series
                 {
                     return lastguess;
                 }
-                else if (curGuess > end)
+                else if (curGuess > validEnd)
                 {
-                    return end;
+                    return validEnd;
                 }
 
-                double guessX = xgetter(items[curGuess]);
+                double guessX = xgetter(items.ElementAt(curGuess));
+
                 if (guessX.Equals(targetX))
                 {
                     return curGuess;
                 }
                 else if (guessX > targetX)
                 {
-                    end = curGuess - 1;
-                    if (end < start)
+                    end = Math.Min(curGuess - 1, end - 1);
+
+                    if (end <= start)
                     {
                         return lastguess;
                     }
-                    else if (end == start)
-                    {
-                        return end;
-                    }
                 }
-                else
+                else if (guessX < targetX)
                 {
-                    start = curGuess + 1;
-                    lastguess = curGuess;
+                    start = Math.Max(curGuess + 1, start + 1);
+                    lastguess = Math.Max(validStart, curGuess);
+                    validStart = Math.Max(validStart, curGuess);
+                }
+                else if (double.IsNaN(guessX))
+                {
+                    start++;
+                    end--;
+                }
+
+                validStart = !double.IsNaN(xgetter(items.ElementAt(start))) ? start : validStart;
+                validEnd = !double.IsNaN(xgetter(items.ElementAt(end))) ? end : validEnd;
+
+                double endX = xgetter(items.ElementAt(validEnd));
+                double startX = xgetter(items.ElementAt(validStart));
+
+                var m = (validEnd - validStart + 1) / (endX - startX);
+                var estimateX = (start - validStart) * (1.0 / m);
+                curGuess = validStart + (int)((targetX - startX - estimateX) * m);
+
+                if (startX <= targetX)
+                {
+                    lastguess = Math.Max(validStart, lastguess);
                 }
 
                 if (start >= end)
                 {
                     return lastguess;
                 }
-
-                double endX = xgetter(items[end]);
-                double startX = xgetter(items[start]);
-
-                var m = (end - start + 1) / (endX - startX);
-                curGuess = start + (int)((targetX - startX) * m);
             }
 
             return lastguess;
